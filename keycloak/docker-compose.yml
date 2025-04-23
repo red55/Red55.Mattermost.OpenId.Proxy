@@ -1,0 +1,47 @@
+services:  
+  kc-db:
+    image: postgres:latest
+    container_name: kc-db
+    environment:
+      POSTGRES_INITDB_ARGS: "--encoding UTF8 --locale-provider=icu --icu-locale=ru-x-icu"
+      POSTGRES_USER: "kc"
+      POSTGRES_DB: "kc"
+      POSTGRES_PASSWORD: "kc"
+    healthcheck:
+      test: "pg_isready -d kc"
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+    volumes:
+      - kc_data:/var/lib/postgresql/data  
+  kc:
+    image: cr.yunqi.studio/it/keycloak:latest
+    container_name: kc
+    build:
+      context: .
+    pull_policy: never
+    healthcheck:
+      test: ["CMD", "true"] # curl", "--head", "-fsSk", "http://localhost:9000/health/ready
+      interval: 1m
+      timeout: 5s
+      retries: 15
+      start_interval: 45s
+      start_period: 5s
+    environment:
+      KC_DB_URL_HOST: kc-db
+      KC_DB_URL_DATABASE: kc
+      KC_DB_USERNAME: kc
+      KC_DB_PASSWORD: kc
+      KC_HOSTNAME: kc
+      KC_BOOTSTRAP_ADMIN_USERNAME: bootstrap-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: kc
+    depends_on:
+      kc-db:
+        condition: service_healthy
+volumes:  
+  kc_data:
+
+    
+     

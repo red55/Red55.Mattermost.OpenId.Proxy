@@ -1,0 +1,70 @@
+services:
+  
+  mm-db:
+    image: postgres:latest
+    container_name: mm-db
+    environment:
+      POSTGRES_INITDB_ARGS: "--encoding UTF8 --locale-provider=icu --icu-locale=ru-x-icu"
+      POSTGRES_USER: "mm"
+      POSTGRES_DB: "mm"
+      POSTGRES_PASSWORD: "mm"
+    healthcheck:
+      test: "pg_isready -d mm"
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+    volumes:
+        - mm_data:/var/lib/postgresql/data  
+
+  mm:
+    container_name: mm
+    image: docker.io/mattermost/mattermost-enterprise-edition
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 200
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: curl --fail http://localhost:8065/api/v4/system/ping
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+      start_interval: 5s 
+    depends_on:
+      mm-db:
+        condition: service_healthy
+    environment:
+      - MM_SQLSETTINGS_DRIVERNAME=postgres
+      - MM_SQLSETTINGS_DATASOURCE=postgres://mm:mm@mm-db:5432/mm?sslmode=disable&connect_timeout=10    
+    labels:
+      traefik.enable: true
+      traefik.http.routers.mm.entrypoints: http
+      traefik.http.routers.mm.rule: "Host(`mm`)"
+      traefik.http.services.mm.loadbalancer.server.port: 8065
+      traefik.tcp.routers.mm.entrypoints: mm-tcp
+      traefik.tcp.routers.mm.rule: "ClientIP(`0.0.0.0/0`)"
+      traefik.tcp.services.mm.loadbalancer.server.port: 8443
+      traefik.udp.routers.mm.entrypoints: mm-udp
+      traefik.udp.services.mm.loadbalancer.server.port: 8443    
+    volumes:
+      - mm_config:/mattermost/config:rw
+      - mm_data:/mattermost/data:rw
+      - mm_logs:/mattermost/logs:rw
+      - mm_plugins:/mattermost/plugins:rw
+      - mm_client_plugins:/mattermost/client/plugins:rw
+      - mm_bleve_indexes:/mattermost/bleve-indexes:rw
+    #ports:
+    #  - 8065:8065
+    #  - 8443:8443/tcp
+    #  - 8443:8443/udp 
+volumes:  
+  mm_config:    
+  mm_data:
+  mm_logs:  
+  mm_plugins:  
+  mm_client_plugins:
+  mm_bleve_indexes:

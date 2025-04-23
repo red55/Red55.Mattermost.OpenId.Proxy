@@ -1,0 +1,87 @@
+include:
+  - gitlab/docker-compose.yml
+  - keycloak/docker-compose.yml
+  - mm/docker-compose.yml
+services:
+  red55.mattermost.openid.proxy:
+    container_name: gl-proxy
+    image: ${DOCKER_REGISTRY-}red55mattermostopenidproxy
+    build:
+      context: .
+      dockerfile: Red55.Mattermost.OpenId.Proxy/Dockerfile
+    labels:
+      traefik.enable: true
+      traefik.http.routers.gl-proxy.entrypoints: http
+      traefik.http.routers.gl-proxy.rule: "Host(`gl-proxy`)"
+      traefik.http.services.gl-proxy.loadbalancer.server.scheme: http
+      traefik.http.services.gl-proxy.loadbalancer.server.port: 8080
+    depends_on:
+      kc:
+        condition: service_healthy
+      gitlab:
+        condition: service_healthy
+      mm:
+        condition: service_healthy
+
+  traefik:
+    container_name: traefik
+    image: docker.io/traefik:v3
+    command:
+      - --entryPoints.http.address=:80
+      #- --entryPoints.https.address=:443
+      - --entryPoints.mm-tcp.address=:8443
+      - --entryPoints.mm-udp.address=:8443/udp
+      - --entryPoints.gl.address=:2424
+      #- --entrypoints.http.http.redirections.entrypoint.to=https
+      #- --entrypoints.http.http.redirections.entrypoint.scheme=https
+      #- --entrypoints.http.http.redirections.entrypoint.permanent=true
+      - --log=true
+      #- --log.filePath=/logs/traefik.log
+      - --log.level=INFO # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC
+      - --accessLog=true
+      - --accessLog.filePath=/logs/access.log
+      - --accessLog.bufferingSize=100 # Configuring a buffer of 100 lines
+      - --accessLog.filters.statusCodes=204-299,400-499,500-599
+      - --providers.docker=true
+      - --providers.docker.exposedByDefault=false
+      - --api=true
+      - --api.insecure=true
+      - --api.dashboard=true
+      - --ping=true
+      #- --entrypoints.https.http.tls=true
+      #- --entrypoints.https.http.tls.certresolver=le_prod
+      #- --certificatesresolvers.le_prod.acme.email=lkorokh@gmail.com
+      #- --certificatesresolvers.le_prod.acme.storage=/acme/acme.json
+      #- --certificatesresolvers.le_prod.acme.httpchallenge=true
+      #- --certificatesresolvers.le_prod.acme.httpchallenge.entrypoint=http
+      #- --certificatesresolvers.le_prod.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --serversTransport.insecureSkipVerify=true
+    healthcheck:
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
+      interval: 5s
+      retries: 60
+    restart: unless-stopped
+    depends_on:
+      kc:
+        condition: service_healthy
+      mm:
+        condition: service_healthy
+      gitlab:
+        condition: service_healthy
+    ports:
+      - 80:80
+      - 8080:8080
+      # - 443:443
+      - 2424:2424
+      - target: 8443
+        protocol: udp
+        published: 8443
+      - target: 8443
+        protocol: tcp
+        published: 8443
+    volumes:
+      #- tf_logs:/logs/:rw
+      #- tf_acme:/acme/:rw
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock

@@ -1,0 +1,43 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    restart: unless-stopped
+    #hostname: 'gitlab.apps.yunqi.studio'
+    cap_add: # required for tshark inside container
+      - NET_RAW
+      - NET_ADMIN
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        nginx['listen_https'] = false 
+    #    gitlab_rails['gitlab_shell_ssh_port'] = 22
+    #ports:
+    #  - '8929:8929'
+    #  - '443:443'
+    #  - '2424:22'
+    healthcheck:
+      test: ["CMD", "curl", "--head", "-fsSk", "http://localhost/-/readiness?all=1"]
+      interval: 30s
+      timeout: 2s
+      retries: 40
+      start_period: 1m
+      start_interval: 5s
+    labels:
+      traefik.enable: true
+      traefik.http.routers.gl.entrypoints: http
+      traefik.http.routers.gl.rule: "Host(`gitlab`)"
+      traefik.http.services.gl.loadbalancer.server.scheme: http
+      traefik.http.services.gl.loadbalancer.server.port: 80
+      traefik.tcp.routers.gl.entrypoints: gl
+      traefik.tcp.routers.gl.rule: "ClientIP(`0.0.0.0/0`)"
+      traefik.tcp.services.gl.loadbalancer.server.port: 22
+    volumes:
+      - gl_config:/etc/gitlab:rw
+      - gl_logs:/var/log/gitlab:rw
+      - gl_data:/var/opt/gitlab:rw
+    shm_size: '256m'
+
+volumes:
+  gl_config:
+  gl_logs:
+  gl_data:

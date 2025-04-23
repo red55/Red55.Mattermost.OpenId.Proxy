@@ -1,0 +1,6 @@
+@Red55.Mattermost.OpenId.Proxy_HostAddress = http://localhost:5275
+
+GET {{Red55.Mattermost.OpenId.Proxy_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
