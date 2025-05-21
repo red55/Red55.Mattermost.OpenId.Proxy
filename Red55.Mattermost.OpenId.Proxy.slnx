@@ -1,0 +1,12 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="docker-compose.dcproj">
+    <Platform Project="AnyCPU" />
+    <Build />
+  </Project>
+  <Project Path="Red55.Mattermost.OpenId.Proxy/Red55.Mattermost.OpenId.Proxy.csproj">
+    <Platform Project="x64" />
+  </Project>
+</Solution>
