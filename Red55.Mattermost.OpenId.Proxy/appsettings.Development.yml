@@ -1,0 +1,16 @@
+---
+Logging:
+  LogLevel:
+    Default: Debug
+    Microsoft.AspNetCore: Warning
+
+Kestrel:
+  Endpoints:
+    http:
+      Url: "http://+:8080"
+
+AppConfig:
+  Gitlab:
+    Url: "http://gitlab.localhost"
+    AppId: "e1bd1f68329950a67a9a7a2b11d5f8fd8799ec3ea2f314d7b4aa90961d61b04a"
+    AppSecret: "gloas-1c8b6d60a86e8c7b054a0d443bc8520821f8a88d0ac3579e020f7bfa6a84b279"

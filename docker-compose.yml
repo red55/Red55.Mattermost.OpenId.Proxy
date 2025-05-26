@@ -5,6 +5,7 @@ include:
 services:
   red55.mattermost.openid.proxy:
     container_name: gl-proxy
+    hostname: gl-proxy.localhost
     image: ${DOCKER_REGISTRY-}red55mattermostopenidproxy
     build:
       context: .
@@ -12,9 +13,12 @@ services:
     labels:
       traefik.enable: true
       traefik.http.routers.gl-proxy.entrypoints: http
-      traefik.http.routers.gl-proxy.rule: "Host(`gl-proxy`)"
+      traefik.http.routers.gl-proxy.rule: "Host(`gl-proxy`) || Host(`gl-proxy.localhost`)"
       traefik.http.services.gl-proxy.loadbalancer.server.scheme: http
       traefik.http.services.gl-proxy.loadbalancer.server.port: 8080
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
     depends_on:
       kc:
         condition: service_healthy
@@ -28,7 +32,8 @@ services:
     image: docker.io/traefik:v3
     command:
       - --entryPoints.http.address=:80
-      #- --entryPoints.https.address=:443
+      - --entryPoints.https.address=:443
+      - --entrypoints.https.http.tls=true
       - --entryPoints.mm-tcp.address=:8443
       - --entryPoints.mm-udp.address=:8443/udp
       - --entryPoints.gl.address=:2424
@@ -48,7 +53,7 @@ services:
       - --api.insecure=true
       - --api.dashboard=true
       - --ping=true
-      #- --entrypoints.https.http.tls=true
+     
       #- --entrypoints.https.http.tls.certresolver=le_prod
       #- --certificatesresolvers.le_prod.acme.email=lkorokh@gmail.com
       #- --certificatesresolvers.le_prod.acme.storage=/acme/acme.json
@@ -64,14 +69,12 @@ services:
     depends_on:
       kc:
         condition: service_healthy
-      mm:
-        condition: service_healthy
       gitlab:
         condition: service_healthy
     ports:
       - 80:80
       - 8080:8080
-      # - 443:443
+      - 443:443
       - 2424:2424
       - target: 8443
         protocol: udp

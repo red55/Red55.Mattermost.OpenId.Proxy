@@ -2,8 +2,12 @@
   <Configurations>
     <Platform Name="x64" />
   </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="localhost.crt" />
+    <File Path="localhost.key" />
+  </Folder>
   <Project Path="docker-compose.dcproj">
-    <Platform Project="AnyCPU" />
     <Build />
   </Project>
   <Project Path="Red55.Mattermost.OpenId.Proxy/Red55.Mattermost.OpenId.Proxy.csproj">

@@ -11,14 +11,35 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="appsettings.*.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <DependentUpon>appsettings.yml</DependentUpon>
+    </Content>
+    <Content Include="appsettings.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Ensure.That" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+    <PackageReference Include="NetEscapades.Configuration.Yaml" />
+    <PackageReference Include="OpenIddict" />
+    <PackageReference Include="OpenIddict.AspNetCore" />
+    <PackageReference Include="OpenIddict.Core" />
+    <PackageReference Include="OpenIddict.EntityFrameworkCore" />
+    <PackageReference Include="Refit" />
+    <PackageReference Include="Refit.HttpClientFactory" />
     <PackageReference Include="Serilog" />
     <PackageReference Include="Serilog.AspNetCore" />
-    <PackageReference Include="Serilog.Enrichers.ClientInfo"  />
+    <PackageReference Include="Serilog.Enrichers.ClientInfo" />
     <PackageReference Include="Serilog.Enrichers.Process" />
     <PackageReference Include="Serilog.Enrichers.Span" />
     <PackageReference Include="Serilog.Enrichers.Thread" />
+    <PackageReference Include="Serilog.Exceptions" />
+    <PackageReference Include="Serilog.Exceptions.Refit" />
+    <PackageReference Include="Serilog.Expressions" />
     <PackageReference Include="Serilog.Extensions.Hosting" />
     <PackageReference Include="Serilog.Extensions.Logging" />	  
     <PackageReference Include="Serilog.Settings.Configuration" />
@@ -27,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <Using Include="EnsureThat" />
   </ItemGroup>
 
 </Project>

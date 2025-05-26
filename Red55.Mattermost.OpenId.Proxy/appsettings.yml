@@ -1,0 +1,61 @@
+---
+Logging:
+  LogLevel:
+    Default: Information
+    Microsoft.AspNetCore: Warning
+AllowedHosts: "*"
+
+Serilog:
+  MinimumLevel: 
+    Default: "Debug"
+    Override:
+      Microsoft: "Warning"
+      Microsoft.Hosting.Lifetime: "Information"
+      Microsoft.AspNetCore: "Warning"
+  Using:  
+    - Serilog.Enrichers.ClientInfo
+    - Serilog.Expressions
+    - Serilog.Exceptions
+    - Serilog.Exceptions.Refit
+  Enrich:
+    - Name: WithCorrelationId
+      Args: 
+        addValueIfHeaderAbsence: true
+    - Name: WithExceptionDetails
+      Args:
+        DefaultDestructuringEnabled: true
+      Destructurers:
+        - Name: "Serilog.Exceptions.Refit.Destructurers.ApiExceptionDestructurer, Serilog.Exceptions.Refit"
+        
+  Filter:
+    - Name: "ByExcluding"
+      Args:
+        expression: "@mt = 'An unhandled exception has occurred while executing the request.'"
+  WriteTo: 
+    - Name: Console
+      Args:
+        formatter:
+          type: "Serilog.Templates.ExpressionTemplate, Serilog.Expressions"
+          template: "[{@t:yyyy-MM-ddTHH:mm:ss} {@l:u3} {Coalesce(CorrelationId, '00000000-0000-0000-0000-000000000000')}] {@m}\n{@x}"
+
+ReverseProxy:
+  Clusters:
+    gl:
+      Destinations:
+        gitlab:
+          Address: http://gitlab.localhost
+    kc:
+      Destinations:
+        kc:
+          Address: http://kc.localhost:8080
+
+  Routes:
+    gitlab:
+      ClusterId: kc
+      Match:
+        Path: "{**catch-all}"
+      Transforms:
+        - RequestHeadersCopy: 'true'
+
+AppConfig:
+  
