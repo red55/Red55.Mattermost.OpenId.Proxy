@@ -2,7 +2,7 @@ FROM quay.io/keycloak/keycloak:latest AS builder
 
 # Enable health and metrics support
 ENV KC_HEALTH_ENABLED=true
-ENV KC_METRICS_ENABLED=true
+ENV KC_METRICS_ENABLED=false
 
 # Configure a database vendor
 ENV KC_DB=postgres

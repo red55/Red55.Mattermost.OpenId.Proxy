@@ -15,10 +15,11 @@ services:
       timeout: 5s
       retries: 3
     volumes:
-      - kc_data:/var/lib/postgresql/data  
+      - kc_data:/var/lib/postgresql/data
   kc:
     image: cr.yunqi.studio/it/keycloak:latest
     container_name: kc
+    hostname: kc.localhost
     build:
       context: .
     pull_policy: never
@@ -34,12 +35,22 @@ services:
       KC_DB_URL_DATABASE: kc
       KC_DB_USERNAME: kc
       KC_DB_PASSWORD: kc
-      KC_HOSTNAME: kc
+      #KC_HOSTNAME: http://kc.localhost
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: false
       KC_BOOTSTRAP_ADMIN_USERNAME: bootstrap-admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: kc
     depends_on:
       kc-db:
         condition: service_healthy
+    labels:
+      traefik.enable: true  
+      traefik.http.routers.kc.entrypoints: http
+      traefik.http.routers.kc.rule: "Host(`kc`) || Host(`kc.localhost`)"
+      traefik.http.services.kc.loadbalancer.server.scheme: http
+      traefik.http.services.kc.loadbalancer.server.port: 8080
+      traefik.tcp.routers.kc.entrypoints: gl
+      traefik.tcp.routers.kc.rule: "ClientIP(`0.0.0.0/0`)"
 volumes:  
   kc_data:
 
