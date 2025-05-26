@@ -1,20 +1,33 @@
 services:
   gitlab:
-    image: gitlab/gitlab-ce:latest
+    image: cr.yunqi.studio/it/gitlab-ce:latest
+    build:
+      context: .
+    pull_policy: never
     container_name: gitlab
+    hostname: gitlab.localhost
     restart: unless-stopped
     #hostname: 'gitlab.apps.yunqi.studio'
     cap_add: # required for tshark inside container
       - NET_RAW
       - NET_ADMIN
+    env_file: ../.env
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        nginx['listen_https'] = false 
-    #    gitlab_rails['gitlab_shell_ssh_port'] = 22
+        external_url 'http://gitlab.localhost'
+        letsencrypt['enable'] = false
+        nginx['listen_https'] = false
+        nginx['redirect_http_to_https'] = false
+        # gitlab_rails['gitlab_shell_ssh_port'] = 22
     #ports:
     #  - '8929:8929'
     #  - '443:443'
     #  - '2424:22'
+    post_start:
+      - command: update-permissions
+        user: root
+      - command: dpkg-reconfigure ca-certificates
+        user: root
     healthcheck:
       test: ["CMD", "curl", "--head", "-fsSk", "http://localhost/-/readiness?all=1"]
       interval: 30s
@@ -24,10 +37,10 @@ services:
       start_interval: 5s
     labels:
       traefik.enable: true
-      traefik.http.routers.gl.entrypoints: http
-      traefik.http.routers.gl.rule: "Host(`gitlab`)"
-      traefik.http.services.gl.loadbalancer.server.scheme: http
-      traefik.http.services.gl.loadbalancer.server.port: 80
+      traefik.http.routers.gl.entrypoints: https
+      traefik.http.routers.gl.rule: "Host(`gitlab`) || Host(`gitlab.localhost`)"
+      traefik.http.services.gl.loadbalancer.server.scheme: https
+      traefik.http.services.gl.loadbalancer.server.port: 443
       traefik.tcp.routers.gl.entrypoints: gl
       traefik.tcp.routers.gl.rule: "ClientIP(`0.0.0.0/0`)"
       traefik.tcp.services.gl.loadbalancer.server.port: 22
@@ -35,6 +48,10 @@ services:
       - gl_config:/etc/gitlab:rw
       - gl_logs:/var/log/gitlab:rw
       - gl_data:/var/opt/gitlab:rw
+      - ./gitlab.rb:/etc/gitlab/gitlab.rb:rw
+      - ../localhost.crt:/usr/share/ca-certificates/localhost.crt:ro
+      - ../localhost.crt:/etc/gitlab/ssl/gitlab.localhost.crt:ro
+      - ../localhost.key:/etc/gitlab/ssl/gitlab.localhost.key:ro
     shm_size: '256m'
 
 volumes:
