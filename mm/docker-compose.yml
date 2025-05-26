@@ -20,6 +20,7 @@ services:
 
   mm:
     container_name: mm
+    hostname: mm.localhost
     image: docker.io/mattermost/mattermost-enterprise-edition
     restart: unless-stopped
     security_opt:
@@ -43,7 +44,7 @@ services:
     labels:
       traefik.enable: true
       traefik.http.routers.mm.entrypoints: http
-      traefik.http.routers.mm.rule: "Host(`mm`)"
+      traefik.http.routers.mm.rule: "Host(`mm`) || Host(`mm.localhost`)"
       traefik.http.services.mm.loadbalancer.server.port: 8065
       traefik.tcp.routers.mm.entrypoints: mm-tcp
       traefik.tcp.routers.mm.rule: "ClientIP(`0.0.0.0/0`)"
@@ -57,6 +58,7 @@ services:
       - mm_plugins:/mattermost/plugins:rw
       - mm_client_plugins:/mattermost/client/plugins:rw
       - mm_bleve_indexes:/mattermost/bleve-indexes:rw
+      - ./config.json:/mattermost/config/config.json:rw
     #ports:
     #  - 8065:8065
     #  - 8443:8443/tcp
