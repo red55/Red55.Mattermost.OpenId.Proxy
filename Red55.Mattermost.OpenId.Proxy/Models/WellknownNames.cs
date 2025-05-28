@@ -1,9 +1,12 @@
-﻿namespace Red55.Mattermost.OpenId.Proxy.Models
-{
-    public class WellknownNames
-    {
-        private static readonly IReadOnlyList<string> _InterceptRequestUrls = ["/api/v4/user", "/oauth/authorize", "/oauth/token"];
+﻿using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 
-        public static IReadOnlyList<string> InterceptRequestUrls { get => _InterceptRequestUrls; }
+using Microsoft.Net.Http.Headers;
+
+namespace Red55.Mattermost.OpenId.Proxy.Models
+{
+    internal static class WellKnownNames
+    {
+      internal static readonly string SetCookieHeader = "Set-Cookie";
     }
 }

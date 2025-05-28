@@ -3534,7 +3534,7 @@ gitlab_rails['gitlab_shell_ssh_port'] = 2424
 # gitlab_backup_cli['dir'] = '/var/opt/gitlab/backups'
 # gitlab_backup_cli['additional_groups'] = %w[git gitlab-psql registry]
 
-=begin
+
 gitlab_rails['omniauth_allow_single_sign_on'] = ['openid_connect']
 gitlab_rails['omniauth_block_auto_created_users'] = false
 gitlab_rails['omniauth_providers'] = [
@@ -3545,14 +3545,14 @@ gitlab_rails['omniauth_providers'] = [
       name: "openid_connect",
       scope: ["openid", "profile", "email"],
       response_type: "code",
-      issuer:  "http://kc/realms/master",
+      issuer:  "http://kc.localhost/realms/master",
       client_auth_method: "query",
       discovery: true,
       uid_field: "preferred_username",
       pkce: true,
       client_options: {
         scheme: "http",
-        host: "kc",
+        host: "kc.localhost",
         port: 80,
         identifier: "gl",
         secret: "VX5JsVwTDMZdW82NzGWs3MT3P9Hgw0B3",
@@ -3561,4 +3561,3 @@ gitlab_rails['omniauth_providers'] = [
     }
   }
 ]
-=end

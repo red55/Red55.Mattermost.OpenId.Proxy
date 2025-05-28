@@ -25,10 +25,6 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
     <PackageReference Include="NetEscapades.Configuration.Yaml" />
-    <PackageReference Include="OpenIddict" />
-    <PackageReference Include="OpenIddict.AspNetCore" />
-    <PackageReference Include="OpenIddict.Core" />
-    <PackageReference Include="OpenIddict.EntityFrameworkCore" />
     <PackageReference Include="Refit" />
     <PackageReference Include="Refit.HttpClientFactory" />
     <PackageReference Include="Serilog" />
@@ -44,6 +40,7 @@
     <PackageReference Include="Serilog.Extensions.Logging" />	  
     <PackageReference Include="Serilog.Settings.Configuration" />
     <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="Yarp.ReverseProxy" />
   </ItemGroup>
 

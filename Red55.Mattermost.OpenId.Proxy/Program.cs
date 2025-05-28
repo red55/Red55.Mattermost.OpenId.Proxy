@@ -1,8 +1,10 @@
+using System.Reflection;
+
 using Microsoft.EntityFrameworkCore;
 
-using OpenIddict.Client;
-
 using Red55.Mattermost.OpenId.Proxy.Api.Gitlab;
+using Red55.Mattermost.OpenId.Proxy.Models;
+using Red55.Mattermost.OpenId.Proxy.Transforms;
 
 using Refit;
 
@@ -11,10 +13,6 @@ using Serilog.Enrichers.Span;
 using Serilog.Exceptions;
 using Serilog.Exceptions.Core;
 using Serilog.Exceptions.Refit.Destructurers;
-
-using static OpenIddict.Abstractions.OpenIddictConstants;
-
-string[] scopes = ["openid", "profile", "email"];
 
 var builder = WebApplication.CreateBuilder (args);
 
@@ -33,155 +31,64 @@ try
     var environment = builder.Environment.EnvironmentName;
 
     builder.Configuration.Sources.Clear ();
-    builder.Configuration
+    _ = builder.Configuration
         .AddEnvironmentVariables ("ASPNETCORE_")
         .AddCommandLine (args)
         .AddEnvironmentVariables ("DOTNET_")
         .AddYamlFile ("appsettings.yml", optional: false)
-        .AddYamlFile ($"appsettings.{environment}.yml", optional: true);
+        .AddYamlFile ($"appsettings.{environment}.yml", optional: true)
+        .AddUserSecrets(Assembly.GetExecutingAssembly());
 
     var appConfigSection = builder.Configuration.GetRequiredSection (AppConfig.SectionName);
     var appConfig = EnsureArg.IsNotNull (appConfigSection.Get<AppConfig> ());
 
-    builder.Services
+    _ = builder.Services
         .AddOptions<AppConfig> ()
         .Bind (appConfigSection)
         .ValidateDataAnnotations ()
         .ValidateOnStart ();
 
-    builder.Services
-        .AddTransient<Red55.Mattermost.OpenId.Proxy.Transforms.Request> ()
-        .AddTransient<Red55.Mattermost.OpenId.Proxy.Transforms.Response> ()
+    _ = builder.Services
         .AddReverseProxy ()
-        .LoadFromConfig (builder.Configuration.GetRequiredSection ("ReverseProxy"))
-        .AddTransforms (builder =>
-        {
-            builder.RequestTransforms.Add (builder.Services.GetRequiredService<Red55.Mattermost.OpenId.Proxy.Transforms.Request> ());
-            builder.ResponseTransforms.Add (builder.Services.GetRequiredService<Red55.Mattermost.OpenId.Proxy.Transforms.Response> ());
-        });
+        .AddTransformFactory<TransformFactory> ()
+        .LoadFromConfig (builder.Configuration.GetRequiredSection ("ReverseProxy"));
 
-    builder.Services
+
+    _ = builder.Services
         .AddRefitClient<IUser> (services =>
         {
             return new ()
             {
-                AuthorizationHeaderValueGetter = async (req, cancel) =>
+                AuthorizationHeaderValueGetter = (req, cancel) =>
                 {
+                    return Task.FromResult (appConfig.GitLab.PAT);
 
-                    var c = services.GetRequiredService<OpenIddictClientService> ();
-
-                    var challenge = await c.ChallengeInteractivelyAsync (new ()
-                    {
-                        CancellationToken = cancel,
-                        GrantType = GrantTypes.AuthorizationCode,
-                        CodeChallengeMethod = CodeChallengeMethods.Sha256,
-                        ResponseType = ResponseTypes.Code
-                    });
-
-                    var authentication = await c.AuthenticateInteractivelyAsync (new ()
-                    {
-                        CancellationToken = cancel,
-                        Nonce = challenge.Nonce,
-                    });
-                    /*
-                    var t = await c.AuthenticateWithPasswordAsync (new ()
-                    {
-                        CancellationToken = cancel,
-                        Username = appConfig.Gitlab.AppId,
-                        Password = appConfig.Gitlab.AppSecret,
-
-                    });*/
-
-                    return "";
-                    //authentication.BackchannelAccessToken ?? authentication.FrontchannelAccessToken;
                 },
+                ContentSerializer = new SystemTextJsonContentSerializer (
+                    new ()
+                    {
+                        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower
+                    }
+                    ),
             };
         })
-        .ConfigureHttpClient (c => c.BaseAddress = appConfig.Gitlab.Url);
+        .ConfigureHttpClient (c => c.BaseAddress = appConfig.GitLab.Url);
 
 
-    builder.Services
+    _ = builder.Services
         .AddControllers ()
             .AddJsonOptions (o =>
             {
                 o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
             });
-    builder.Services
+    _ = builder.Services
         .ConfigureHttpJsonOptions (o =>
         {
             o.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
             o.SerializerOptions.DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
         });
-    builder.Services
-        .AddDbContext<DbContext> (options =>
-        {
-            options.UseInMemoryDatabase ("openiddict");
-            options.UseOpenIddict ();
-        });
-    builder.Services
-        .AddOpenIddict ()
-        .AddCore (o =>
-        {
-            o.UseEntityFrameworkCore ()
-                .UseDbContext<DbContext> ();
-        })
-        .AddClient (o =>
-        {
-            o//.AllowClientCredentialsFlow ()
-            .AllowAuthorizationCodeFlow ()
-            .AllowPasswordFlow ();
-            //.DisableTokenStorage ();
-
-            o.UseSystemIntegration ();
-            o.UseSystemNetHttp ()
-                .ConfigureHttpClientHandler (ch =>
-                {
-                    if (environment == "Development")
-                    {
-                        // In development, we allow self-signed certificates
-                        // This is not recommended for production use
-#pragma warning disable S4830
-                        ch.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-#pragma warning restore S4830
-                    }
-                });
-
-            var issuer = appConfig.Gitlab.Url;
-
-            o.AddDevelopmentEncryptionCertificate ()
-                .AddDevelopmentSigningCertificate ();
-
-            o.UseAspNetCore ()
-                .EnableRedirectionEndpointPassthrough ();
-            OpenIddictClientRegistration reg = new ()
-            {
-                Issuer = issuer,
-                ClientId = appConfig.Gitlab.AppId,
-                ClientSecret = appConfig.Gitlab.AppSecret,
-                Configuration = new ()
-                {
-                    Issuer = issuer,
-                    AuthorizationEndpoint = new (issuer, "/oauth/authorize"),
-                    TokenEndpoint = new (issuer, "/oauth/token"),
-                    RevocationEndpoint = new (issuer, "/oauth/revoke"),
-                    IntrospectionEndpoint = new (issuer, "/oauth/introspect"),
-                    UserInfoEndpoint = new (issuer, "/oauth/userinfo"),
-                    JsonWebKeySetUri = new (issuer, "/oauth/discovery/keys"),
-                },
-                RedirectUri = new ("http://gl-proxy.localhost/oauth/callback/gitlab"),
-                ConfigurationEndpoint = new (issuer, "/.well-known/openid-configuration"),
-            };
-            reg.Configuration.GrantTypesSupported.UnionWith ([GrantTypes.Password, GrantTypes.AuthorizationCode,
-                 GrantTypes.ClientCredentials, GrantTypes.DeviceCode, GrantTypes.RefreshToken,
-                GrantTypes.Implicit, GrantTypes.DeviceCode]);
-            reg.Scopes.UnionWith (scopes);
-
-
-            o.AddRegistration (reg);
-
-        });
-
-    builder.Host.UseSerilog ((context, services, configuration) => configuration
+    
+    _ = builder.Host.UseSerilog ((context, services, configuration) => configuration
                          .ReadFrom.Configuration (context.Configuration)
                          .ReadFrom.Services (services)
                          .Enrich.FromLogContext ()
@@ -190,15 +97,10 @@ try
 
     var app = builder.Build ();
 
-    // Configure the HTTP request pipeline.
 
-    //app.UseHttpsRedirection();
+    _ = app.MapControllers ();
 
-    //app.UseAuthorization();
-
-    app.MapControllers ();
-
-    app.MapReverseProxy ();
+    _ = app.MapReverseProxy ();
 
     await app.RunAsync ();
 

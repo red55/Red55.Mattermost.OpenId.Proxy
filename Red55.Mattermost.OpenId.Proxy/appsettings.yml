@@ -36,21 +36,35 @@ Serilog:
       Args:
         formatter:
           type: "Serilog.Templates.ExpressionTemplate, Serilog.Expressions"
-          template: "[{@t:yyyy-MM-ddTHH:mm:ss} {@l:u3} {Coalesce(CorrelationId, '00000000-0000-0000-0000-000000000000')}] {@m}\n{@x}"
+          template: "[{@t:yyyy-MM-ddTHH:mm:ss} {@l:u3}] {@m}\n{@x}" # {Coalesce(CorrelationId, '00000000-0000-0000-0000-000000000000')}
+
+Kestrel:
+  Endpoints:
+    http:
+      Url: "http://+:8080"
 
 ReverseProxy:
   Clusters:
-    gl:
-      Destinations:
-        gitlab:
-          Address: http://gitlab.localhost
     kc:
       Destinations:
         kc:
-          Address: http://kc.localhost:8080
-
+          Address: https://kc.apps.yunqi.studio
   Routes:
-    gitlab:
+    gitlab_auth:
+      ClusterId: kc
+      Match:
+        Path: "/oauth/authorize"
+      Transforms:
+        - RequestHeadersCopy: 'true'
+        - PathSet: "/realms/master/protocol/openid-connect/auth"
+    gitlab_token:
+      ClusterId: kc
+      Match:
+        Path: "/oauth/token"
+      Transforms:
+        - RequestHeadersCopy: 'true'
+        - PathSet: "/realms/master/protocol/openid-connect/token"
+    gitlab_rest:
       ClusterId: kc
       Match:
         Path: "{**catch-all}"
@@ -58,4 +72,12 @@ ReverseProxy:
         - RequestHeadersCopy: 'true'
 
 AppConfig:
+  KeyCloak:
+    Url: "https://kc.apps.yunqi.studio"
+    AppId: ""
+    AppSecret: ""
+  GitLab:
+    Url: "http://gitlab.apps.yunqi.studio"
+    PAT: ""
+
   

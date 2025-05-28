@@ -51,6 +51,7 @@ services:
       traefik.http.services.kc.loadbalancer.server.port: 8080
       traefik.tcp.routers.kc.entrypoints: gl
       traefik.tcp.routers.kc.rule: "ClientIP(`0.0.0.0/0`)"
+
 volumes:  
   kc_data:
 

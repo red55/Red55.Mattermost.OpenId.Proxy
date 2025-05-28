@@ -6,6 +6,7 @@
     <File Path=".editorconfig" />
     <File Path="localhost.crt" />
     <File Path="localhost.key" />
+    <File Path="README.md" />
   </Folder>
   <Project Path="docker-compose.dcproj">
     <Build />

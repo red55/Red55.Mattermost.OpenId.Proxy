@@ -17,7 +17,7 @@ services:
         external_url 'http://gitlab.localhost'
         letsencrypt['enable'] = false
         nginx['listen_https'] = false
-        nginx['redirect_http_to_https'] = false
+        nginx['http2_enabled'] = false
         # gitlab_rails['gitlab_shell_ssh_port'] = 22
     #ports:
     #  - '8929:8929'
@@ -37,10 +37,17 @@ services:
       start_interval: 5s
     labels:
       traefik.enable: true
-      traefik.http.routers.gl.entrypoints: https
+      traefik.http.routers.gl.entrypoints: http
       traefik.http.routers.gl.rule: "Host(`gitlab`) || Host(`gitlab.localhost`)"
-      traefik.http.services.gl.loadbalancer.server.scheme: https
-      traefik.http.services.gl.loadbalancer.server.port: 443
+      traefik.http.services.gl.loadbalancer.server.scheme: http
+      traefik.http.services.gl.loadbalancer.server.port: 80
+
+#      traefik.http.routers.gl-https.entrypoints: https
+#      traefik.http.routers.gl-https.rule: "Host(`gitlab`) || Host(`gitlab.localhost`)"
+#      traefik.http.services.gl-https.loadbalancer.server.scheme: https
+#      traefik.http.services.gl-https.loadbalancer.server.port: 443
+
+
       traefik.tcp.routers.gl.entrypoints: gl
       traefik.tcp.routers.gl.rule: "ClientIP(`0.0.0.0/0`)"
       traefik.tcp.services.gl.loadbalancer.server.port: 22

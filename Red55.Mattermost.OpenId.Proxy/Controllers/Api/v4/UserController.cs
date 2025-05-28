@@ -1,6 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// Ignore Spelling: Mattermost Api
+
+using System.IdentityModel.Tokens.Jwt;
+
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 using Red55.Mattermost.OpenId.Proxy.Api.Gitlab;
+using Red55.Mattermost.OpenId.Proxy.Extensions;
+using Red55.Mattermost.OpenId.Proxy.Models.Gitlab;
+using Red55.Mattermost.OpenId.Proxy.Extensions.GitLab;
 
 namespace Red55.Mattermost.OpenId.Proxy.Controllers.api.v4
 {
@@ -13,24 +21,61 @@ namespace Red55.Mattermost.OpenId.Proxy.Controllers.api.v4
         /// </summary>
         /// <returns>The current user.</returns>
         [HttpGet ()]
-        public async Task<IActionResult> Get([FromServices] IUser gitlabUserService,
-            [FromHeader] string authorization,
+        [ProducesResponseType (StatusCodes.Status200OK)]
+        [ProducesResponseType (StatusCodes.Status404NotFound)]
+        [ProducesResponseType (StatusCodes.Status400BadRequest)]
+        [ProducesResponseType (StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<UserBase>> Get([FromHeader] string authorization,
             [FromServices] ILogger<UserController> log,
+            [FromServices] IUser userApi,
             CancellationToken cancellation)
         {
-            EnsureArg.IsNotNull (gitlabUserService, nameof (gitlabUserService));
+            if (string.IsNullOrEmpty (authorization) || !authorization.StartsWith("Bearer "))
+            {
+                return Problem (statusCode: StatusCodes.Status400BadRequest, detail: "Authorization header is required");
+            }
 
             try
             {
-                var user = await gitlabUserService.GetUserAsync (2, cancellation);
-                await user.EnsureSuccessStatusCodeAsync ();
+                var token = new JwtSecurityTokenHandler ().ReadJwtToken (authorization.Split("Bearer ")[1]);
+                var email = token.GetClaimValue (JwtRegisteredClaimNames.Email);
+                var ur = await userApi.GetUsersAsync (email, 
+                    cancellationToken: cancellation);
 
-                if (user.Error != null)
+                await ur.EnsureSuccessfulAsync ();
+
+                UserBase r;
+                if (ur.StatusCode == HttpStatusCode.NotFound || 0 == (ur.Content?.Count ?? 0))
                 {
-                    return BadRequest (user.Error);
+                    r = new UserBase ()
+                    {
+                        Name = token.GetClaimValue (JwtRegisteredClaimNames.Name),
+                        Username = token.GetClaimValue (JwtRegisteredClaimNames.PreferredUsername),
+                        Email = email,
+                    };
+
+                    var u = await userApi.CreateUserAsync (r, cancellation);
+                    await u.EnsureSuccessfulAsync ();
+
+                    if (u.Content is null)
+                    {
+                        return this.Problem (statusCode: 500, detail: "Failed to create user");
+                    }
+
+                    r.Id = u.Content.Id;
+                    r.AvatarUrl = u.Content?.AvatarUrl ?? string.Format(UserBase.DEFAULT_PICTURE_URL, 
+                        u?.Content?.EmailHash() ?? UserBase.DEFAULT_PICTURE_S256);
+
+                }
+                else
+                {                  
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                    r = ur.Content[0];
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+
                 }
 
-                return Ok (user.Content);
+                return r;
             }
             catch (Exception e)
             {

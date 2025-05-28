@@ -15,8 +15,10 @@ services:
       interval: 1m
       timeout: 5s
       retries: 3
+    ports:
+      - 5432:5432 
     volumes:
-        - mm_data:/var/lib/postgresql/data  
+        - mm_pg_data:/var/lib/postgresql/data  
 
   mm:
     container_name: mm
@@ -65,6 +67,7 @@ services:
     #  - 8443:8443/udp 
 volumes:  
   mm_config:    
+  mm_pg_data:
   mm_data:
   mm_logs:  
   mm_plugins:  
