@@ -37,7 +37,8 @@ try
         .AddEnvironmentVariables ("DOTNET_")
         .AddYamlFile ("appsettings.yml", optional: false)
         .AddYamlFile ($"appsettings.{environment}.yml", optional: true)
-        .AddUserSecrets(Assembly.GetExecutingAssembly());
+        .AddUserSecrets(Assembly.GetExecutingAssembly())
+        .AddEnvironmentVariables();
 
     var appConfigSection = builder.Configuration.GetRequiredSection (AppConfig.SectionName);
     var appConfig = EnsureArg.IsNotNull (appConfigSection.Get<AppConfig> ());
