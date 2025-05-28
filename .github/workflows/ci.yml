@@ -20,5 +20,5 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and push
         run: |
-          docker buildx build --tag red55/mm-openid-proxy:latest .
+          docker buildx build --tag red55/mm-openid-proxy:latest -f Red55.Mattermost.OpenId.Proxy/Dockerfile .
           docker push red55/mm-openid-proxy:latest
