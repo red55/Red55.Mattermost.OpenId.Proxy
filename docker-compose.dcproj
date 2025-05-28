@@ -15,14 +15,14 @@
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
     <None Include=".env" />
-    <None Include="gitlab\docker-compose.yml" />
-    <None Include="gitlab\Dockerfile" />
-    <None Include="gitlab\gitlab.rb" />
-    <None Include="keycloak\docker-compose.yml" />
-    <None Include="keycloak\Dockerfile" />
-    <None Include="keycloak\gl.json" />
-    <None Include="keycloak\mm.json" />
-    <None Include="mm\config.json" />
-    <None Include="mm\docker-compose.yml" />
+    <None Include="docker\gitlab\docker-compose.yml" />
+    <None Include="docker\gitlab\Dockerfile" />
+    <None Include="docker\gitlab\gitlab.rb" />
+    <None Include="docker\keycloak\docker-compose.yml" />
+    <None Include="docker\keycloak\Dockerfile" />
+    <None Include="docker\keycloak\gl.json" />
+    <None Include="docker\keycloak\mm.json" />
+    <None Include="docker\mm\config.json" />
+    <None Include="docker\mm\docker-compose.yml" />
   </ItemGroup>
 </Project>
