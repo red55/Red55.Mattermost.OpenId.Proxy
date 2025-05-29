@@ -4,6 +4,10 @@ Logging:
     Default: Debug
     Microsoft.AspNetCore: Warning
 
+Serilog:
+  MinimumLevel: 
+    Default: "Debug"
+
 ReverseProxy:
   Clusters:
     kc:
