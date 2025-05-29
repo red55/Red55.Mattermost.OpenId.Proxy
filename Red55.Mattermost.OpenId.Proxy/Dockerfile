@@ -29,4 +29,5 @@ RUN dotnet publish "./Red55.Mattermost.OpenId.Proxy.csproj" -c $BUILD_CONFIGURAT
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY localhost.* .
 ENTRYPOINT ["dotnet", "Red55.Mattermost.OpenId.Proxy.dll"]
