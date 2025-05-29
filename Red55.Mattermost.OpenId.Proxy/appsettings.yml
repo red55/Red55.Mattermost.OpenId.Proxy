@@ -66,13 +66,13 @@ ReverseProxy:
         Path: "/oauth/token"
       Transforms:
         - RequestHeadersCopy: 'true'
-        - PathSet: "/realms/master/protocol/openid-connect/token"
-    gitlab_rest:
+        - PathSet: "/realms/master/protocol/openid-connect/token"    
+    keycloak_rest:
       ClusterId: kc
       Match:
-        Path: "{**catch-all}"
+        Path: "/{prefix:regex(^resources|^realms|^common)}/{**catchall}"
       Transforms:
-        - RequestHeadersCopy: 'true'
+        - RequestHeadersCopy: 'true'  
 
 AppConfig:
   OpenId:
