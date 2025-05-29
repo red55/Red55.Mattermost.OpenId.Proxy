@@ -5,7 +5,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0-noble AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
-EXPOSE 8081
+EXPOSE 8443
+
 
 
 # This stage is used to build the service project
@@ -29,5 +30,5 @@ RUN dotnet publish "./Red55.Mattermost.OpenId.Proxy.csproj" -c $BUILD_CONFIGURAT
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY localhost.* .
+COPY localhost.* /home/app/
 ENTRYPOINT ["dotnet", "Red55.Mattermost.OpenId.Proxy.dll"]
