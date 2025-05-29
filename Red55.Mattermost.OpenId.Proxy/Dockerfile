@@ -36,9 +36,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 COPY localhost.* /home/app/
-RUN curl -sfL https://github.com/devcontainers-contrib/nanolayer/releases/download/v0.5.6/nanolayer-x86_64-unknown-linux-gnu.tgz | tar fxvz - -C /tmp/ \
-    && chmod 755 /tmp/nanolayer \
-    && /tmp/nanolayer install apt-get curl \
-    && rm /tmp/nanolayer
-
 ENTRYPOINT ["dotnet", "Red55.Mattermost.OpenId.Proxy.dll"]
