@@ -2,6 +2,9 @@ services:
   red55.mattermost.openid.proxy:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+    post_start:
+      - command: update-ca-certificates
+        user: root
     ports:
       - "8080"
       - "8081"
@@ -10,3 +13,6 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ./localhost.crt:/usr/share/ca-certificates/localhost.crt:ro
+      - ./localhost.crt:/home/app/localhost.crt:ro
+      - ./localhost.key:/home/app/localhost.key:ro

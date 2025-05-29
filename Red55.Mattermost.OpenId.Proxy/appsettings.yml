@@ -43,8 +43,8 @@ Kestrel:
     https:
       Url: "https://+:8443"
       Certificate:        
-        Path: "localhost.crt"
-        KeyPath: "localhost.key"
+        Path: "/home/app/localhost.crt"
+        KeyPath: "/home/app/localhost.key"
 
 ReverseProxy:
   Clusters:
