@@ -109,10 +109,10 @@ try
 
     _ = app.MapReverseProxy ();
 
-    if (Log.IsEnabled (Serilog.Events.LogEventLevel.Debug))
+    if (Log.IsEnabled (Serilog.Events.LogEventLevel.Information))
     {
         var cfg = app.Services.GetRequiredService<IOptions<AppConfig>> ();
-        Log.Logger.Debug ("Application configuration: {@AppConfig}", cfg.Value);
+        Log.Logger.Information ("Application configuration: {@AppConfig}", cfg.Value);
     }
 
 
