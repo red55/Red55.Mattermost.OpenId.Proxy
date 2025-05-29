@@ -33,7 +33,7 @@ services:
       interval: 30s
       timeout: 2s
       retries: 40
-      start_period: 1m
+      start_period: 5m
       start_interval: 5s
     labels:
       traefik.enable: true
@@ -56,9 +56,9 @@ services:
       - gl_logs:/var/log/gitlab:rw
       - gl_data:/var/opt/gitlab:rw
       - ./gitlab.rb:/etc/gitlab/gitlab.rb:rw
-      - ../localhost.crt:/usr/share/ca-certificates/localhost.crt:ro
-      - ../localhost.crt:/etc/gitlab/ssl/gitlab.localhost.crt:ro
-      - ../localhost.key:/etc/gitlab/ssl/gitlab.localhost.key:ro
+      - ../../localhost.crt:/usr/share/ca-certificates/localhost.crt:ro
+      - ../../localhost.crt:/etc/gitlab/ssl/gitlab.localhost.crt:ro
+      - ../../localhost.key:/etc/gitlab/ssl/gitlab.localhost.key:ro
     shm_size: '256m'
 
 volumes:

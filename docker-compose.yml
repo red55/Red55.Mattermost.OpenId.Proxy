@@ -1,7 +1,7 @@
 include:
-  - gitlab/docker-compose.yml
-  - keycloak/docker-compose.yml
-  - mm/docker-compose.yml
+  - docker/gitlab/docker-compose.yml
+  - docker/keycloak/docker-compose.yml
+  - docker/mm/docker-compose.yml
 services:
   red55.mattermost.openid.proxy:
     container_name: gl-proxy
