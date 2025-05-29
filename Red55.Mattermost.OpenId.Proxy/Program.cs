@@ -32,8 +32,6 @@ Log.Logger = new LoggerConfiguration ()
 try
 {
     var environment = builder.Environment.EnvironmentName;
-    Log.Logger.Debug ("Starting application in environment '{Environment}'", environment);
-    Log.Logger.Debug ("Command line arguments: {Args}", string.Join (" ", args));
 
     builder.Configuration.Sources.Clear ();
     _ = builder.Configuration
@@ -58,7 +56,7 @@ try
         .AddReverseProxy ()
         .AddTransformFactory<TransformFactory> ()
         .LoadFromConfig (builder.Configuration.GetRequiredSection ("ReverseProxy"));
-
+    // Set DangerousAcceptAnyServerCertificate in appsettings.yml/appsettings.Development.yml under each cluster's HttpClient section.
 
     _ = builder.Services
         .AddRefitClient<IUser> (services =>
@@ -109,7 +107,7 @@ try
 
     _ = app.MapReverseProxy ();
 
-    if (Log.IsEnabled (Serilog.Events.LogEventLevel.Information))
+    if (Log.Logger.IsEnabled (Serilog.Events.LogEventLevel.Information))
     {
         var cfg = app.Services.GetRequiredService<IOptions<AppConfig>> ();
         Log.Logger.Information ("Application configuration: {@AppConfig}", cfg.Value);
