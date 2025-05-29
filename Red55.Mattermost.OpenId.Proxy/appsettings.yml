@@ -72,7 +72,7 @@ ReverseProxy:
         - RequestHeadersCopy: 'true'
 
 AppConfig:
-  KeyCloak:
+  OpenId:
     Url: "https://kc.apps.yunqi.studio"
     AppId: ""
     AppSecret: ""

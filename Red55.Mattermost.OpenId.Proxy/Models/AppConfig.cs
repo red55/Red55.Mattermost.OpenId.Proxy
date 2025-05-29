@@ -14,9 +14,9 @@ namespace Red55.Mattermost.OpenId.Proxy.Models
         [Required]
         public required string PAT { get; init; }
     }
-    public record KeyCloakSettings
+    public record OpenIdSettings
     {
-        public readonly static KeyCloakSettings Empty = new ()
+        public readonly static OpenIdSettings Empty = new ()
         {
             AppId = string.Empty,
             AppSecret = string.Empty,
@@ -36,7 +36,7 @@ namespace Red55.Mattermost.OpenId.Proxy.Models
         public static readonly string SectionName = nameof (AppConfig);
 
         [Required]
-        public required KeyCloakSettings KeyCloak { get; init; }
+        public required OpenIdSettings OpenId { get; init; }
 
 
         [Required]
