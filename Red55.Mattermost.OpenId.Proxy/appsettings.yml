@@ -66,7 +66,7 @@ ReverseProxy:
         Path: "/oauth/token"
       Transforms:
         - RequestHeadersCopy: 'true'
-        - PathSet: "/realms/master/protocol/openid-connect/token"    
+        - PathSet: "/realms/master/protocol/openid-connect/token"
     keycloak_rest:
       ClusterId: kc
       Match:

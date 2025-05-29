@@ -17,8 +17,9 @@ ReverseProxy:
     kc:
       Destinations:
         kc:
-          Address: http://kc.localhost:8080
-
+          Address: https://kc.localhost:8443
+  HttpClient:
+    DangerousAcceptAnyServerCertificate: true
   Routes:
     gitlab_auth:
       Transforms:
@@ -30,7 +31,7 @@ ReverseProxy:
         - RequestHeadersCopy: 'true'
         - PathSet: "/realms/master/protocol/openid-connect/token"
         - DisableSecureCookies: 'true'
-    gitlab_rest:
+    keycloak_rest:
       Transforms:
         - RequestHeadersCopy: 'true'
         - DisableSecureCookies: 'true'
