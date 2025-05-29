@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+using Destructurama.Attributed;
+
 namespace Red55.Mattermost.OpenId.Proxy.Models
 {
     public record GitLabSettings
@@ -12,6 +14,7 @@ namespace Red55.Mattermost.OpenId.Proxy.Models
         [Required]
         public required Uri Url { get; init; }
         [Required]
+        [LogMasked]
         public required string PAT { get; init; }
     }
     public record OpenIdSettings
@@ -28,6 +31,7 @@ namespace Red55.Mattermost.OpenId.Proxy.Models
         [Required]
         public required string AppId { get; init; }
         [Required]
+        [LogMasked]
         public required string AppSecret { get; init; }
     }
 

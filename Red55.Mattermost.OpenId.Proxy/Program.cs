@@ -1,6 +1,8 @@
 using System.Reflection;
 
-using Microsoft.EntityFrameworkCore;
+using Destructurama;
+
+using Microsoft.Extensions.Options;
 
 using Red55.Mattermost.OpenId.Proxy.Api.Gitlab;
 using Red55.Mattermost.OpenId.Proxy.Models;
@@ -17,6 +19,7 @@ using Serilog.Exceptions.Refit.Destructurers;
 var builder = WebApplication.CreateBuilder (args);
 
 Log.Logger = new LoggerConfiguration ()
+    .Destructure.UsingAttributes ()
     .Enrich.FromLogContext ()
     .Enrich.WithCorrelationId ()
     .Enrich.WithExceptionDetails (new DestructuringOptionsBuilder ()
@@ -29,6 +32,8 @@ Log.Logger = new LoggerConfiguration ()
 try
 {
     var environment = builder.Environment.EnvironmentName;
+    Log.Logger.Debug ("Starting application in environment '{Environment}'", environment);
+    Log.Logger.Debug ("Command line arguments: {Args}", string.Join (" ", args));
 
     builder.Configuration.Sources.Clear ();
     _ = builder.Configuration
@@ -37,8 +42,8 @@ try
         .AddEnvironmentVariables ("DOTNET_")
         .AddYamlFile ("appsettings.yml", optional: false)
         .AddYamlFile ($"appsettings.{environment}.yml", optional: true)
-        .AddUserSecrets(Assembly.GetExecutingAssembly())
-        .AddEnvironmentVariables();
+        .AddUserSecrets (Assembly.GetExecutingAssembly ())
+        .AddEnvironmentVariables ();
 
     var appConfigSection = builder.Configuration.GetRequiredSection (AppConfig.SectionName);
     var appConfig = EnsureArg.IsNotNull (appConfigSection.Get<AppConfig> ());
@@ -88,13 +93,14 @@ try
             o.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
             o.SerializerOptions.DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
         });
-    
+
     _ = builder.Host.UseSerilog ((context, services, configuration) => configuration
                          .ReadFrom.Configuration (context.Configuration)
                          .ReadFrom.Services (services)
                          .Enrich.FromLogContext ()
                          .Enrich.WithCorrelationId ()
-                         .Enrich.WithSpan ());
+                         .Enrich.WithSpan ()
+                         .Destructure.UsingAttributes ());
 
     var app = builder.Build ();
 
@@ -102,6 +108,13 @@ try
     _ = app.MapControllers ();
 
     _ = app.MapReverseProxy ();
+
+    if (Log.IsEnabled (Serilog.Events.LogEventLevel.Debug))
+    {
+        var cfg = app.Services.GetRequiredService<IOptions<AppConfig>> ();
+        Log.Logger.Debug ("Application configuration: {@AppConfig}", cfg.Value);
+    }
+
 
     await app.RunAsync ();
 

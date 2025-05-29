@@ -7,6 +7,7 @@
     <GlobalPackageVersion Include="Microsoft.Build.CopyOnWrite" Version="1.0.334" />
   </ItemGroup>
   <ItemGroup>
+    <PackageVersion Include="Destructurama.Attributed" Version="5.1.0" />
     <PackageVersion Include="Ensure.That" Version="10.1.0" />
     <PackageVersion Include="Generator.Equals" Version="3.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.5" />
