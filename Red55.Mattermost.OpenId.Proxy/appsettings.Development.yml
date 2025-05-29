@@ -8,6 +8,10 @@ Serilog:
   MinimumLevel: 
     Default: "Debug"
 
+Kestrel:
+  Endpoints:
+    http:
+      Url: "http://+:8080"
 ReverseProxy:
   Clusters:
     kc:

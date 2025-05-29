@@ -42,7 +42,7 @@ Kestrel:
   Endpoints:
     https:
       Url: "https://+:8443"
-      Certificate:        
+      Certificate:
         Path: "/home/app/localhost.crt"
         KeyPath: "/home/app/localhost.key"
 
