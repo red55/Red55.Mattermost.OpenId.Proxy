@@ -25,6 +25,9 @@ services:
     hostname: mm.localhost
     image: docker.io/mattermost/mattermost-enterprise-edition
     restart: unless-stopped
+    post_start:
+      - command: /bin/sh -c 'chown -R 2000:2000 /mattermost/'
+        user: root
     security_opt:
       - no-new-privileges:true
     pids_limit: 200
