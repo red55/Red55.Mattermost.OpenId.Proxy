@@ -2,6 +2,11 @@
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-noble AS base
+USER root
+ENV DEBIAN_FRONTEND=noniteractive
+RUN apt update && apt install -y --no-install-recommends \
+    curl \ 
+    && rm -rf /var/lib/apt/lists/*
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
