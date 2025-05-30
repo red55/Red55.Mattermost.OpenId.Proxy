@@ -11,7 +11,8 @@
   "clientAuthenticatorType": "client-secret",
   "secret": "zAugaBjpTyZ2gDfFUBaceeqe6Fwkglhq",
   "redirectUris": [
-    "http://mm.localhost/*"
+    "http://mm.localhost/*",
+    "https://mm.localhost/*"
   ],
   "webOrigins": [
     "+"

@@ -14,10 +14,10 @@ services:
     env_file: ../.env
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://gitlab.localhost'
+        external_url 'https://gitlab.localhost'
         letsencrypt['enable'] = false
-        nginx['listen_https'] = false
-        nginx['http2_enabled'] = false
+        #nginx['listen_https'] = false
+        nginx['http2_enabled'] = true
         # gitlab_rails['gitlab_shell_ssh_port'] = 22
     #ports:
     #  - '8929:8929'
@@ -29,7 +29,7 @@ services:
       - command: dpkg-reconfigure ca-certificates
         user: root
     healthcheck:
-      test: ["CMD", "curl", "--head", "-fsSk", "http://localhost/-/readiness?all=1"]
+      test: ["CMD", "curl", "--head", "-fsSk", "https://localhost/-/readiness?all=1"]
       interval: 30s
       timeout: 2s
       retries: 40

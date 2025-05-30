@@ -12,10 +12,10 @@ services:
       dockerfile: Red55.Mattermost.OpenId.Proxy/Dockerfile
     labels:
       traefik.enable: true
-      traefik.http.routers.gl-proxy.entrypoints: http
+      traefik.http.routers.gl-proxy.entrypoints: https
       traefik.http.routers.gl-proxy.rule: "Host(`gl-proxy`) || Host(`gl-proxy.localhost`)"
-      traefik.http.services.gl-proxy.loadbalancer.server.scheme: http
-      traefik.http.services.gl-proxy.loadbalancer.server.port: 8080
+      traefik.http.services.gl-proxy.loadbalancer.server.scheme: https
+      traefik.http.services.gl-proxy.loadbalancer.server.port: 8443
     environment:
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
@@ -37,9 +37,9 @@ services:
       - --entryPoints.mm-tcp.address=:8443
       - --entryPoints.mm-udp.address=:8443/udp
       - --entryPoints.gl.address=:2424
-      #- --entrypoints.http.http.redirections.entrypoint.to=https
-      #- --entrypoints.http.http.redirections.entrypoint.scheme=https
-      #- --entrypoints.http.http.redirections.entrypoint.permanent=true
+      - --entrypoints.http.http.redirections.entrypoint.to=https
+      - --entrypoints.http.http.redirections.entrypoint.scheme=https
+      # - --entrypoints.http.http.redirections.entrypoint.permanent=true
       - --log=true
       #- --log.filePath=/logs/traefik.log
       - --log.level=INFO # (Default: error) DEBUG, INFO, WARN, ERROR, FATAL, PANIC

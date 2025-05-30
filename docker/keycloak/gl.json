@@ -11,7 +11,8 @@
   "clientAuthenticatorType": "client-secret",
   "secret": "VX5JsVwTDMZdW82NzGWs3MT3P9Hgw0B3",
   "redirectUris": [
-    "http://gitlab.localhost/*"
+    "http://gitlab.localhost/*",
+    "https://gitlab.localhost/*"
   ],
   "webOrigins": [
     "+"
