@@ -15,11 +15,12 @@ Kestrel:
 ReverseProxy:
   Clusters:
     kc:
+      HttpClient:
+        DangerousAcceptAnyServerCertificate: true
       Destinations:
         kc:
           Address: https://kc.localhost:8443
-  HttpClient:
-    DangerousAcceptAnyServerCertificate: true
+
   Routes:
     gitlab_auth:
       Transforms:
