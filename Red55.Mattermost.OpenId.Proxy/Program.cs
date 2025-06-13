@@ -54,7 +54,7 @@ try
 
     _ = builder.Services
         .AddReverseProxy ()
-        .AddTransformFactory<TransformFactory> ()
+        .AddTransformFactory<DisableSecureCookiesTransformFactory> ()
         .LoadFromConfig (builder.Configuration.GetRequiredSection ("ReverseProxy"));
     // Set DangerousAcceptAnyServerCertificate in appsettings.yml/appsettings.Development.yml under each cluster's HttpClient section.
 
