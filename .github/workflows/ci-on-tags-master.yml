@@ -2,8 +2,6 @@
 name: CI - On Master Branch Tagging
 on:
   push:
-    branches:
-      - master
     tags:
       - 'v*'
 env:
