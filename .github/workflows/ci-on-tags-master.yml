@@ -28,14 +28,17 @@ jobs:
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Dump meta
+        run: |
+          echo "Meta: ${{ steps.meta.outputs }}"
       - name: Build and push
         uses: docker/build-push-action@v6.18.0
         with:
           context: .
           file: Red55.Mattermost.OpenId.Proxy/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: "${{ steps.meta.outputs.tags }}"
+          labels: "${{ steps.meta.outputs.labels }}"
 
 #        run: |
 #          docker buildx build --tag red55/mm-openid-proxy:latest -f Red55.Mattermost.OpenId.Proxy/Dockerfile .
