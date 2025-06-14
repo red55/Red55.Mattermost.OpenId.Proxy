@@ -4,7 +4,8 @@
   </Configurations>
   <Folder Name="/.github/" Id="02ea681e-c7d8-13c7-8484-4ac65e1b71e8" />
   <Folder Name="/.github/workflows/" Id="55bb976c-4364-48d3-af42-03e6ebb2547b">
-    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/ci-on-push-master.yml" />
+    <File Path=".github/workflows/ci-on-tags-master.yml" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />

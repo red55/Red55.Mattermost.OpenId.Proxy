@@ -1,14 +1,14 @@
 ﻿// Ignore Spelling: Mattermost Api
 
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 using Red55.Mattermost.OpenId.Proxy.Api.Gitlab;
 using Red55.Mattermost.OpenId.Proxy.Extensions;
-using Red55.Mattermost.OpenId.Proxy.Models.Gitlab;
 using Red55.Mattermost.OpenId.Proxy.Extensions.GitLab;
+using Red55.Mattermost.OpenId.Proxy.Models.Gitlab;
 
 namespace Red55.Mattermost.OpenId.Proxy.Controllers.api.v4
 {
@@ -30,16 +30,16 @@ namespace Red55.Mattermost.OpenId.Proxy.Controllers.api.v4
             [FromServices] IUser userApi,
             CancellationToken cancellation)
         {
-            if (string.IsNullOrEmpty (authorization) || !authorization.StartsWith("Bearer "))
+            if (string.IsNullOrEmpty (authorization) || !authorization.StartsWith ("Bearer "))
             {
                 return Problem (statusCode: StatusCodes.Status400BadRequest, detail: "Authorization header is required");
             }
 
             try
             {
-                var token = new JwtSecurityTokenHandler ().ReadJwtToken (authorization.Split("Bearer ")[1]);
+                var token = new JwtSecurityTokenHandler ().ReadJwtToken (authorization.Split ("Bearer ")[1]);
                 var email = token.GetClaimValue (JwtRegisteredClaimNames.Email);
-                var ur = await userApi.GetUsersAsync (email, 
+                var ur = await userApi.GetUsersAsync (email,
                     cancellationToken: cancellation);
 
                 await ur.EnsureSuccessfulAsync ();
@@ -63,12 +63,11 @@ namespace Red55.Mattermost.OpenId.Proxy.Controllers.api.v4
                     }
 
                     r.Id = u.Content.Id;
-                    r.AvatarUrl = u.Content?.AvatarUrl ?? string.Format(UserBase.DEFAULT_PICTURE_URL, 
-                        u?.Content?.EmailHash() ?? UserBase.DEFAULT_PICTURE_S256);
-
+                    r.AvatarUrl = u.Content?.AvatarUrl ?? string.Format (UserBase.DEFAULT_PICTURE_URL,
+                        u?.Content?.EmailHash () ?? UserBase.DEFAULT_PICTURE_S256);
                 }
                 else
-                {                  
+                {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
                     r = ur.Content[0];
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
