@@ -86,8 +86,9 @@ namespace Red55.Mattermost.OpenId.Proxy.Transforms.Response
             }
             catch (Exception e)
             {
+                var sanitizedPath = context.HttpContext.Request.Path.Replace("\n", "").Replace("\r", "");
                 Log.LogError (e, "{Class}.{Method} {Url} {Message}", nameof (ReplaceInResponseTransform), nameof (ApplyAsync),
-                    context.HttpContext.Request.Path, e.Message);
+                    sanitizedPath, e.Message);
                 throw;
             }
             finally
