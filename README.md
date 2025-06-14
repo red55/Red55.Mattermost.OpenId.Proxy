@@ -16,6 +16,8 @@ OpenId IDs is a GUID, so it can't be used as a GitLab user ID.
 3. Create a new client in OpenId authorization service. Put its credentials in `appsettings.yml`.
 4. Don't forget to change OpenId and GitLab URLs in `appsettings.yml` to your own.
 
+## Configuration
+
 ```yaml
 AppConfig:
   OpenId:
@@ -28,4 +30,4 @@ AppConfig:
 ```
 
 The YAML configuration file could be overridden by environment variables.
-For example, you can set `APPCONFIG_OPENID_URL` to override the OpenId URL.
+For example, you can set `APPCONFIG:OPENID:URL` to override the OpenId URL.
