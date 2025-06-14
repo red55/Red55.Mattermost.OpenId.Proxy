@@ -42,7 +42,6 @@ namespace Red55.Mattermost.OpenId.Proxy.Transforms
 
         public bool Validate(TransformRouteValidationContext context, IReadOnlyDictionary<string, string> transformValues)
         {
-
             if (transformValues.TryGetValue (DisableSecureCookiesKeys, out var disableSecureCookies))
             {
                 TransformHelpers.TryCheckTooManyParameters (context, transformValues, 1);
@@ -55,9 +54,11 @@ namespace Red55.Mattermost.OpenId.Proxy.Transforms
                             )
                     );
                 }
+
+                return true;
             }
 
-            return context.Errors.Count == 0;
+            return false;
         }
     }
 }

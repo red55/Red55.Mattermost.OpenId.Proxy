@@ -35,21 +35,22 @@ services:
       KC_DB_URL_DATABASE: kc
       KC_DB_USERNAME: kc
       KC_DB_PASSWORD: kc
-      KC_HOSTNAME: https://kc.localhost
-      #KC_HOSTNAME_STRICT: true
-      #KC_HOSTNAME_BACKCHANNEL_DYNAMIC: false
+      # KC_HOSTNAME: https://kc.localhost
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: false
       KC_BOOTSTRAP_ADMIN_USERNAME: bootstrap-admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: kc
       KC_LOG_LEVEL: debug
+      KC_HTTP_ENABLED: true
     depends_on:
       kc-db:
         condition: service_healthy
     labels:
       traefik.enable: true  
-      traefik.http.routers.kc.entrypoints: https
+      traefik.http.routers.kc.entrypoints: http
       traefik.http.routers.kc.rule: "Host(`kc`) || Host(`kc.localhost`)"
-      traefik.http.services.kc.loadbalancer.server.scheme: https
-      traefik.http.services.kc.loadbalancer.server.port: 8443
+      traefik.http.services.kc.loadbalancer.server.scheme: http
+      traefik.http.services.kc.loadbalancer.server.port: 8080
       traefik.tcp.routers.kc.entrypoints: gl
       traefik.tcp.routers.kc.rule: "ClientIP(`0.0.0.0/0`)"
 

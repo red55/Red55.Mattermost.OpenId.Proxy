@@ -48,7 +48,7 @@ services:
       - MM_SQLSETTINGS_DATASOURCE=postgres://mm:mm@mm-db:5432/mm?sslmode=disable&connect_timeout=10    
     labels:
       traefik.enable: true
-      traefik.http.routers.mm.entrypoints: https
+      traefik.http.routers.mm.entrypoints: http
       traefik.http.routers.mm.rule: "Host(`mm`) || Host(`mm.localhost`)"
       traefik.http.services.mm.loadbalancer.server.port: 8065
       traefik.tcp.routers.mm.entrypoints: mm-tcp

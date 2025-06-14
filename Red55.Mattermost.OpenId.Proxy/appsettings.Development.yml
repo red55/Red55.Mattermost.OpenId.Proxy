@@ -19,7 +19,7 @@ ReverseProxy:
         DangerousAcceptAnyServerCertificate: true
       Destinations:
         kc:
-          Address: https://kc.localhost:8443
+          Address: http://kc.localhost:8080
 
   Routes:
     gitlab_auth:
@@ -27,18 +27,31 @@ ReverseProxy:
         - RequestHeadersCopy: 'true'
         - PathSet: "/realms/master/protocol/openid-connect/auth"
         - DisableSecureCookies: 'true'
+        - ReplaceInResponse:
+          Match: "kc\\.localhost"
+          Replacement: "gl-proxy.localhost"  
     gitlab_token:
       Transforms:
         - RequestHeadersCopy: 'true'
         - PathSet: "/realms/master/protocol/openid-connect/token"
         - DisableSecureCookies: 'true'
+        - ReplaceInResponse:
+          Match: "kc\\.localhost"
+          Replacement: "gl-proxy.localhost"
     keycloak_rest:
       Transforms:
         - RequestHeadersCopy: 'true'
         - DisableSecureCookies: 'true'
+        - ReplaceInResponse:
+          Match: "kc\\.localhost"
+          Replacement: "gl-proxy.localhost"
+        - ReplaceInRequest:
+          Match: "kc\\.localhost"
+          Replacement: "gl-proxy.localhost"
+
 AppConfig:
   OpenId:
-    Url: "http://kc.localhost:8080"
+    Url: "http://kc.localhost"
     AppId: "e1bd1f68329950a67a9a7a2b11d5f8fd8799ec3ea2f314d7b4aa90961d61b04a"
     AppSecret: "gloas-1c8b6d60a86e8c7b054a0d443bc8520821f8a88d0ac3579e020f7bfa6a84b279"
   GitLab:

@@ -1,6 +1,6 @@
 {
     "ServiceSettings": {
-        "SiteURL": "",
+        "SiteURL": "http://mm.localhost",
         "WebsocketURL": "",
         "LicenseFileLocation": "",
         "ListenAddress": ":8065",
@@ -336,9 +336,9 @@
         "Secret": "zAugaBjpTyZ2gDfFUBaceeqe6Fwkglhq",
         "Id": "983efa7674d0342124d40d808f20ce39c609f9abd0fabfbde87818f6d658df75",
         "Scope": "",
-        "AuthEndpoint": "https://gl-proxy.localhost/oauth/authorize",
-        "TokenEndpoint": "https://gl-proxy.localhost:8443/oauth/token",
-        "UserAPIEndpoint": "https://gl-proxy.localhost:8443/api/v4/user",
+        "AuthEndpoint": "http://gl-proxy.localhost/oauth/authorize",
+        "TokenEndpoint": "http://gl-proxy.localhost:8080/oauth/token",
+        "UserAPIEndpoint": "http://gl-proxy.localhost:8080/api/v4/user",
         "DiscoveryEndpoint": "",
         "ButtonText": "",
         "ButtonColor": ""

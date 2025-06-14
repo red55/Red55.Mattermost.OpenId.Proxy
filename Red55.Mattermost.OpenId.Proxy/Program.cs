@@ -41,7 +41,7 @@ try
         .AddYamlFile ("appsettings.yml", optional: false)
         .AddYamlFile ($"appsettings.{environment}.yml", optional: true)
         .AddUserSecrets (Assembly.GetExecutingAssembly ())
-        .AddEnvironmentVariables ();
+        .AddEnvironmentVariables ("");
 
     var appConfigSection = builder.Configuration.GetRequiredSection (AppConfig.SectionName);
     var appConfig = EnsureArg.IsNotNull (appConfigSection.Get<AppConfig> ());
@@ -55,6 +55,8 @@ try
     _ = builder.Services
         .AddReverseProxy ()
         .AddTransformFactory<DisableSecureCookiesTransformFactory> ()
+        .AddTransformFactory<ReplaceInResponseTransformFactory> ()
+        .AddTransformFactory<ReplaceInRequestTransformFactory> ()
         .LoadFromConfig (builder.Configuration.GetRequiredSection ("ReverseProxy"));
     // Set DangerousAcceptAnyServerCertificate in appsettings.yml/appsettings.Development.yml under each cluster's HttpClient section.
 
