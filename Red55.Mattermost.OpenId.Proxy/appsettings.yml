@@ -20,7 +20,7 @@ Serilog:
   Enrich:
     - Name: WithCorrelationId
       Args: 
-        addValueIfHeaderAbsence: true
+        addValueIfHeaderAbsence: false
     - Name: WithExceptionDetails
       Args:
         DefaultDestructuringEnabled: true
@@ -36,7 +36,7 @@ Serilog:
       Args:
         formatter:
           type: "Serilog.Templates.ExpressionTemplate, Serilog.Expressions"
-          template: "[{@t:yyyy-MM-ddTHH:mm:ss} {@l:u3}] {@m}\n{@x}" # {Coalesce(CorrelationId, '00000000-0000-0000-0000-000000000000')}
+          template: "[{@t:yyyy-MM-ddTHH:mm:ss} {Coalesce(CorrelationId, '0000000000000:00000000')} {@l:u3}] {@m}\n{@x}"
 
 Kestrel:
   Endpoints:
