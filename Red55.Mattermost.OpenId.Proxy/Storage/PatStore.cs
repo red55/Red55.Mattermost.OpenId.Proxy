@@ -23,7 +23,7 @@ namespace Red55.Mattermost.OpenId.Proxy.Storage
         readonly ReaderWriterLockSlim _lock = new ();
         PersonalAccessToken? _pat;
 
-        string StroreFileName
+        string StoreFileName
         {
             get
             {
