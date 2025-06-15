@@ -13,7 +13,7 @@ namespace Red55.Mattermost.OpenId.Proxy.Extensions.GitLab
                 // ComputeHash - returns byte array
                 byte[] bytes = SHA256.HashData (Encoding.UTF8.GetBytes (rawData));
 
-                // Convert byte array to a string
+                // Convert byte array to a PersonalAccessToken
                 StringBuilder builder = new StringBuilder ();
                 for (int i = 0; i < bytes.Length; i++)
                 {

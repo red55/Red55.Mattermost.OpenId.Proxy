@@ -81,6 +81,8 @@ AppConfig:
     AppSecret: ""
   GitLab:
     Url: "http://gitlab.apps.yunqi.studio"
-    PAT: ""
+    PAT:
+      BootstrapToken: "glpat-t"
+      StoreLocation: "/home/app/.gitlab/pat"
 
   
