@@ -37,7 +37,7 @@ namespace Red55.Mattermost.OpenId.Proxy.Storage
             try
             {
                 cancellationToken.ThrowIfCancellationRequested ();
-                if (_pat is null && File.Exists (StroreFileName))
+                if (_pat is null && File.Exists (StoreFileName))
                 {
                     var deserializer = new DeserializerBuilder ()
                         .WithNamingConvention (CamelCaseNamingConvention.Instance)
@@ -45,7 +45,7 @@ namespace Red55.Mattermost.OpenId.Proxy.Storage
                         .WithTypeConverter (new DateOnlyConverter ())
                         .Build ();
 
-                    using var reader = new StreamReader (StroreFileName);
+                    using var reader = new StreamReader (StoreFileName);
                     _pat = deserializer.Deserialize<PersonalAccessToken> (reader);
                 }
                 return ValueTask.FromResult (_pat is null ? Config.GitLab.PAT.BootstrapToken : _pat.Token);
@@ -67,7 +67,7 @@ namespace Red55.Mattermost.OpenId.Proxy.Storage
 
                 Directory.CreateDirectory (Config.GitLab.PAT.StoreLocation);
 
-                using var f = File.OpenWrite (StroreFileName);
+                using var f = File.OpenWrite (StoreFileName);
                 using var writer = new StreamWriter (f, System.Text.Encoding.UTF8);
 
                 var serializer = new SerializerBuilder ()
