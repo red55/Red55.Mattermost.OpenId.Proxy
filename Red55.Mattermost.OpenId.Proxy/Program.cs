@@ -5,6 +5,7 @@ using Destructurama;
 using Microsoft.Extensions.Options;
 
 using Red55.Mattermost.OpenId.Proxy.Api.Gitlab;
+using Red55.Mattermost.OpenId.Proxy.Middlewares.Kestrel;
 using Red55.Mattermost.OpenId.Proxy.Models;
 using Red55.Mattermost.OpenId.Proxy.Transforms;
 
@@ -26,7 +27,7 @@ Log.Logger = new LoggerConfiguration ()
         .WithDefaultDestructurers ()
         .WithDestructurers ([new ApiExceptionDestructurer (destructureCommonExceptionProperties: false)]))
     .MinimumLevel.Debug ()
-    .WriteTo.Console (outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {CorrelationId} {Message:lj}{NewLine}{Exception}")
+    .WriteTo.Console (outputTemplate: "[{Timestamp:HH:mm:ss} {Coalesce(CorrelationId, '0000000000000:00000000')} {Level:u3}] {Message:lj}{NewLine}{Exception}")
     .CreateBootstrapLogger ();
 
 try
@@ -53,6 +54,7 @@ try
         .ValidateOnStart ();
 
     _ = builder.Services
+        .AddHttpContextAccessor ()
         .AddReverseProxy ()
         .AddTransformFactory<DisableSecureCookiesTransformFactory> ()
         .AddTransformFactory<ReplaceInResponseTransformFactory> ()
@@ -104,6 +106,8 @@ try
 
     var app = builder.Build ();
 
+
+    _ = app.UseMiddleware<CorrelationIdMiddleware> ();
 
     _ = app.MapControllers ();
 
