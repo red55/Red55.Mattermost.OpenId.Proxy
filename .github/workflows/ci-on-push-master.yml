@@ -1,4 +1,4 @@
-name: CI - On Master Branch Tagging
+name: CI - On Master Branch Push
 on:
   push:
     branches:
