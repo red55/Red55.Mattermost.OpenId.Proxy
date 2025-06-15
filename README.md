@@ -1,6 +1,6 @@
 # Red55.Mattermost.OpenId.Proxy
 
-Free version of Mattermost doesn't support OpenID Connect authentication. 
+Free version of Mattermost doesn't support OpenID Connect authentication.
 
 This project is a proxy that allows you to use KeyCloak (virtually any OAuth2 capable authentication service) as an OpenID Connect provider for Mattermost.
 This proxy will handle the authentication flow and pass the user information to Mattermost.
@@ -8,6 +8,12 @@ This proxy will handle the authentication flow and pass the user information to 
 If authenticating user does exists in OpenId authorization service only, the proxy will create a new user in GitLab and Mattermost.
 This is required because Mattermost doesn't support OpenID Connect and requires a GitLab user to be created first to get its integer Id.
 OpenId IDs is a GUID, so it can't be used as a GitLab user ID.
+
+Available as container image:
+
+```shell
+docker pull red55/mm-openid-proxy:latest
+```
 
 ## Pre-requisites
 
