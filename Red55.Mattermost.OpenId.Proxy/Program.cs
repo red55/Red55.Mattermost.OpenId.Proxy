@@ -5,8 +5,11 @@ using Destructurama;
 using Microsoft.Extensions.Options;
 
 using Red55.Mattermost.OpenId.Proxy.Api.Gitlab;
+using Red55.Mattermost.OpenId.Proxy.Middlewares.HttpClient;
 using Red55.Mattermost.OpenId.Proxy.Middlewares.Kestrel;
 using Red55.Mattermost.OpenId.Proxy.Models;
+using Red55.Mattermost.OpenId.Proxy.Services;
+using Red55.Mattermost.OpenId.Proxy.Storage;
 using Red55.Mattermost.OpenId.Proxy.Transforms;
 
 using Refit;
@@ -54,6 +57,12 @@ try
         .ValidateOnStart ();
 
     _ = builder.Services
+        .AddSingleton<IPatStore, PatStore> ()
+        .AddTransient<HttpRequestOptionsHandler> ()
+        .AddHostedService<PatRotateService> ()
+        ;
+
+    _ = builder.Services
         .AddHttpContextAccessor ()
         .AddReverseProxy ()
         .AddTransformFactory<DisableSecureCookiesTransformFactory> ()
@@ -61,27 +70,35 @@ try
         .AddTransformFactory<ReplaceInRequestTransformFactory> ()
         .LoadFromConfig (builder.Configuration.GetRequiredSection ("ReverseProxy"));
     // Set DangerousAcceptAnyServerCertificate in appsettings.yml/appsettings.Development.yml under each cluster's HttpClient section.
+    var refitSettings = new RefitSettings ()
+    {
+        AuthorizationHeaderValueGetter = async (req, cancel) =>
+        {
+            cancel.ThrowIfCancellationRequested ();
+            if (req.Options.TryGetValue (new HttpRequestOptionsKey<IPatStore> (nameof (IPatStore)), out var patStore))
+            {
+                return await patStore.GetTokenAsync (cancel);
+            }
+
+            return appConfig.GitLab.PAT.BootstrapToken;
+
+        },
+        ContentSerializer = new SystemTextJsonContentSerializer (new ()
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower
+        }
+        ),
+    };
 
     _ = builder.Services
-        .AddRefitClient<IUser> (services =>
-        {
-            return new ()
-            {
-                AuthorizationHeaderValueGetter = (req, cancel) =>
-                {
-                    return Task.FromResult (appConfig.GitLab.PAT);
+        .AddRefitClient<IUser> (services => refitSettings)
+        .ConfigureHttpClient (c => c.BaseAddress = appConfig.GitLab.Url)
+        .ConfigureAdditionalHttpMessageHandlers ((handlers, services) => handlers.Add (services.GetRequiredService<HttpRequestOptionsHandler> ()));
 
-                },
-                ContentSerializer = new SystemTextJsonContentSerializer (
-                    new ()
-                    {
-                        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower
-                    }
-                    ),
-            };
-        })
-        .ConfigureHttpClient (c => c.BaseAddress = appConfig.GitLab.Url);
-
+    _ = builder.Services
+        .AddRefitClient<IPersonalAccessTokens> (services => refitSettings)
+        .ConfigureHttpClient (c => c.BaseAddress = appConfig.GitLab.Url)
+        .ConfigureAdditionalHttpMessageHandlers ((handlers, services) => handlers.Add (services.GetRequiredService<HttpRequestOptionsHandler> ()));
 
     _ = builder.Services
         .AddControllers ()

@@ -56,4 +56,7 @@ AppConfig:
     AppSecret: "gloas-1c8b6d60a86e8c7b054a0d443bc8520821f8a88d0ac3579e020f7bfa6a84b279"
   GitLab:
     Url: "http://gitlab.localhost"
-    PAT: "glpat-tcHWEY7BL3NrMR5yZp9S"
+    PAT:
+      BootstrapToken: "glpat-tcHWEY7BL3NrMR5yZp9S"
+      StoreLocation: "/home/app/.gitlab/pat"
+

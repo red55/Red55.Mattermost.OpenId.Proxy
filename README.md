@@ -18,21 +18,28 @@ docker pull red55/mm-openid-proxy:latest
 ## Pre-requisites
 
 1. Create a new Admin user in GitLab.
-2. Create Personal Access Token with `api` scope. Set it in `appsettings.yml`.
+2. Create Personal Access Token with **`[api,self_rotate]`** scopes. Set it in `appsettings.yml`.
 3. Create a new client in OpenId authorization service. Put its credentials in `appsettings.yml`.
 4. Don't forget to change OpenId and GitLab URLs in `appsettings.yml` to your own.
 
 ## Configuration
 
+The web service automatically rotates GitLab Personal Access Token (PAT) before AppConfig.GitLab.PAT.GracePeriod its expiration date.
+So you have to bind AppConfig.GitLab.PAT.StoreLocation to a persistent volume to keep the token between container restarts.
+
+
 ```yaml
 AppConfig:
   OpenId:
     Url: "https://kc.apps.yunqi.studio"
-    AppId: "<OID CLIENT ID HERE>"
-    AppSecret: "<OID CLIENT PASSWORD HERE>"
+    AppId: "<OpenID CLIENT ID HERE>"
+    AppSecret: "<OpenID CLIENT PASSWORD HERE>"
   GitLab:
     Url: "http://gitlab.apps.yunqi.studio"
-    PAT: "<YOUR PAT HERE>"
+    PAT:
+      BootstrapToken: "<GitLab PAT HERE>"
+      StoreLocation: "/home/app/.gitlab/pat"
+      GracePeriod: "1.00:30:00" # 1 day 30 minutes
 ```
 
 The YAML configuration file could be overridden by environment variables.

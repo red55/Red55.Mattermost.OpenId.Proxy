@@ -4,18 +4,28 @@ using Destructurama.Attributed;
 
 namespace Red55.Mattermost.OpenId.Proxy.Models
 {
+    public record GitlabPat
+    {
+        [Required]
+        [LogMasked]
+        public required string BootstrapToken { get; init; } = string.Empty;
+        [Required]
+        public required string StoreLocation { get; init; } = string.Empty;
+
+        public TimeSpan GracePeriod { get; init; } = TimeSpan.FromDays (1);
+    }
+
     public record GitLabSettings
     {
         public readonly static GitLabSettings Empty = new ()
         {
-            PAT = string.Empty,
+            PAT = new GitlabPat () { StoreLocation = "/home/app/", BootstrapToken = string.Empty },
             Url = new Uri (string.Empty)
         };
         [Required]
         public required Uri Url { get; init; }
         [Required]
-        [LogMasked]
-        public required string PAT { get; init; }
+        public required GitlabPat PAT { get; init; }
     }
     public record OpenIdSettings
     {
