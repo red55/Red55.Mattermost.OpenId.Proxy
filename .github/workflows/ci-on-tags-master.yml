@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 50
       - name: meta
         uses: docker/metadata-action@v5.7.0
         with:
@@ -30,10 +32,6 @@ jobs:
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Dump meta
-        run: |
-          echo "Meta-tags: ${{ steps.meta.outputs.tags }}"
-          echo "Meta-labels: ${{ steps.meta.outputs.labels }}"
       - name: Build and push
         uses: docker/build-push-action@v6.18.0
         with:
