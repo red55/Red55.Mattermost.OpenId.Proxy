@@ -24,6 +24,10 @@ docker pull red55/mm-openid-proxy:latest
 
 ## Configuration
 
+The web service automatically rotates GitLab Personal Access Token (PAT) before AppConfig.GitLab.PAT.GracePeriod its expiration date.
+So you have to bind AppConfig.GitLab.PAT.StoreLocation to a persistent volume to keep the token between container restarts.
+
+
 ```yaml
 AppConfig:
   OpenId:
