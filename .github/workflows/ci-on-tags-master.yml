@@ -2,8 +2,6 @@
 name: CI - On Master Branch Tagging
 on:
   push:
-    branches:
-      - master
     tags:
       - 'v*'
 env:
@@ -30,15 +28,16 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Dump meta
         run: |
-          echo "Meta: ${{ steps.meta.outputs }}"
+          echo "Meta-tags: ${{ steps.meta.outputs.tags }}"
+          echo "Meta-labels: ${{ steps.meta.outputs.labels }}"
       - name: Build and push
         uses: docker/build-push-action@v6.18.0
         with:
           context: .
           file: Red55.Mattermost.OpenId.Proxy/Dockerfile
           push: true
-          tags: "${{ steps.meta.outputs.tags }}"
-          labels: "${{ steps.meta.outputs.labels }}"
+          tags: "${{ env.DOCKER_METADATA_OUTPUT_TAGS }}"
+          labels: "${{ env.DOCKER_METADATA_OUTPUT_LABELS }}"
 
 #        run: |
 #          docker buildx build --tag red55/mm-openid-proxy:latest -f Red55.Mattermost.OpenId.Proxy/Dockerfile .
