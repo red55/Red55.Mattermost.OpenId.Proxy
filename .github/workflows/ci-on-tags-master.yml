@@ -1,9 +1,13 @@
 
-name: CI - On Master Branch Tagging
+name: CI - On Master Branch Push
 on:
   push:
     tags:
       - 'v*'
+  workflow_run:
+    workflows: ["ci-on-push-master.yml"]
+    types:
+      - completed
 env:
   DOTNET_NOLOGO: true
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
