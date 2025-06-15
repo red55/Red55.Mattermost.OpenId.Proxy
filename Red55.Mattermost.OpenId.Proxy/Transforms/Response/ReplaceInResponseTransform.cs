@@ -86,9 +86,8 @@ namespace Red55.Mattermost.OpenId.Proxy.Transforms.Response
             }
             catch (Exception e)
             {
-                var sanitizedPath = context.HttpContext.Request.Path.Replace("\n", "").Replace("\r", "");
                 Log.LogError (e, "{Class}.{Method} {Url} {Message}", nameof (ReplaceInResponseTransform), nameof (ApplyAsync),
-                    sanitizedPath, e.Message);
+                    context.HttpContext.Request.Path, e.Message);
                 throw;
             }
             finally
@@ -100,7 +99,7 @@ namespace Red55.Mattermost.OpenId.Proxy.Transforms.Response
 
                 writeStream.Dispose ();
             }
-#pragma warning restore S6966 
+#pragma warning restore S6966
         }
     }
 }
