@@ -23,6 +23,7 @@
   <ItemGroup>
     <PackageReference Include="Destructurama.Attributed" />
     <PackageReference Include="Ensure.That" />
+    <PackageReference Include="Generator.Equals" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
     <PackageReference Include="MinVer">

@@ -40,8 +40,10 @@ services:
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: false
       KC_BOOTSTRAP_ADMIN_USERNAME: bootstrap-admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: kc
-      KC_LOG_LEVEL: debug
+      KC_LOG_LEVEL: trace
       KC_HTTP_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      KC_METRICS_ENABLED: true
     depends_on:
       kc-db:
         condition: service_healthy
@@ -51,8 +53,6 @@ services:
       traefik.http.routers.kc.rule: "Host(`kc`) || Host(`kc.localhost`)"
       traefik.http.services.kc.loadbalancer.server.scheme: http
       traefik.http.services.kc.loadbalancer.server.port: 8080
-      traefik.tcp.routers.kc.entrypoints: gl
-      traefik.tcp.routers.kc.rule: "ClientIP(`0.0.0.0/0`)"
 
 volumes:  
   kc_data:

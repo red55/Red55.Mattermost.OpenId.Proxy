@@ -2,13 +2,16 @@ using System.Reflection;
 
 using Destructurama;
 
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
 using Red55.Mattermost.OpenId.Proxy.Api.Gitlab;
+using Red55.Mattermost.OpenId.Proxy.Extensions;
 using Red55.Mattermost.OpenId.Proxy.Middlewares.HttpClient;
 using Red55.Mattermost.OpenId.Proxy.Middlewares.Kestrel;
 using Red55.Mattermost.OpenId.Proxy.Models;
 using Red55.Mattermost.OpenId.Proxy.Services;
+using Red55.Mattermost.OpenId.Proxy.Services.HealthChecks;
 using Red55.Mattermost.OpenId.Proxy.Storage;
 using Red55.Mattermost.OpenId.Proxy.Transforms;
 
@@ -19,6 +22,7 @@ using Serilog.Enrichers.Span;
 using Serilog.Exceptions;
 using Serilog.Exceptions.Core;
 using Serilog.Exceptions.Refit.Destructurers;
+using Serilog.Templates;
 
 var builder = WebApplication.CreateBuilder (args);
 
@@ -30,7 +34,7 @@ Log.Logger = new LoggerConfiguration ()
         .WithDefaultDestructurers ()
         .WithDestructurers ([new ApiExceptionDestructurer (destructureCommonExceptionProperties: false)]))
     .MinimumLevel.Debug ()
-    .WriteTo.Console (outputTemplate: "[{Timestamp:HH:mm:ss} {Coalesce(CorrelationId, '0000000000000:00000000')} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.Console (new ExpressionTemplate ("[{@t:yyyy-MM-ddTHH:mm:ss} {Coalesce(CorrelationId, '0000000000000:00000000')} {@l:u3}] {@m}\n{@x}"))
     .CreateBootstrapLogger ();
 
 try
@@ -99,6 +103,17 @@ try
         .AddRefitClient<IPersonalAccessTokens> (services => refitSettings)
         .ConfigureHttpClient (c => c.BaseAddress = appConfig.GitLab.Url)
         .ConfigureAdditionalHttpMessageHandlers ((handlers, services) => handlers.Add (services.GetRequiredService<HttpRequestOptionsHandler> ()));
+    _ = builder.Services
+          .AddRefitClient<IGitlabHealthChecks> (services => refitSettings)
+          .ConfigureHttpClient (c => c.BaseAddress = appConfig.GitLab.Url)
+          .ConfigureAdditionalHttpMessageHandlers ((handlers, services) => handlers.Add (services.GetRequiredService<HttpRequestOptionsHandler> ()));
+
+
+    // Register the named HttpClient for GitLab API
+    _ = builder.Services.AddHttpClient ("GitLabApi", c =>
+    {
+        c.BaseAddress = appConfig.GitLab.Url;
+    });
 
     _ = builder.Services
         .AddControllers ()
@@ -113,18 +128,64 @@ try
             o.SerializerOptions.DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
         });
 
+    _ = builder.Services
+        .AddHttpClient ("OpenIdApiChecks", c =>
+        {
+        }).ConfigurePrimaryHttpMessageHandler (() =>
+        {
+            var r = new HttpClientHandler ();
+
+            if (appConfig.OpenId.HealthChecks != OpenIdHealthChecks.Empty &&
+                appConfig.OpenId.HealthChecks.DangerousAcceptAnyServerCertificate)
+            {
+                r.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            }
+
+            return r;
+        });
+    // Register the custom health check
+    var checks = builder.Services
+        .AddHealthChecks ();
+    _ = checks
+        .AddCheck<GitLabApiReadinessCheck> ("gitlab_readiness", tags: ["ready"])
+        .AddCheck<GitLabApiLivenessCheck> ("gitlab_liveness", tags: ["alive"]);
+
+    if (appConfig.OpenId.HealthChecks != OpenIdHealthChecks.Empty)
+    {
+        if (!appConfig.OpenId.HealthChecks.LivenessUrl.IsNullOrEmpty ())
+        {
+            _ = checks.AddCheck<OpenIdApiLivenessCheck> ("open_id_liveness", tags: ["alive"]);
+        }
+        if (!appConfig.OpenId.HealthChecks.ReadinessUrl.IsNullOrEmpty ())
+        {
+            _ = checks.AddCheck<OpenIdApiReadinessCheck> ("open_id_readiness", tags: ["ready"]);
+        }
+    }
+    else
+    {
+        Log.Logger.Warning ("OpenID Health Checks are not configured. Skipping OpenID health checks registration.");
+    }
+
     _ = builder.Host.UseSerilog ((context, services, configuration) => configuration
-                         .ReadFrom.Configuration (context.Configuration)
-                         .ReadFrom.Services (services)
-                         .Enrich.FromLogContext ()
-                         .Enrich.WithCorrelationId ()
-                         .Enrich.WithSpan ()
-                         .Destructure.UsingAttributes ());
+        .ReadFrom.Configuration (context.Configuration)
+        .ReadFrom.Services (services)
+        .Enrich.FromLogContext ()
+        .Enrich.WithCorrelationId ()
+        .Enrich.WithSpan ()
+        .Destructure.UsingAttributes ());
 
     var app = builder.Build ();
 
-
     _ = app.UseMiddleware<CorrelationIdMiddleware> ();
+
+    _ = app.MapHealthChecks ("/healthz/ready", new HealthCheckOptions
+    {
+        Predicate = check => check.Tags.Contains ("ready")
+    });
+    _ = app.MapHealthChecks ("/healthz/live", new HealthCheckOptions
+    {
+        Predicate = check => check.Tags.Contains ("alive")
+    });
 
     _ = app.MapControllers ();
 

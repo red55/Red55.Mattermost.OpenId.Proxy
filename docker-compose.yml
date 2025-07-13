@@ -10,6 +10,13 @@ services:
     build:
       context: .
       dockerfile: Red55.Mattermost.OpenId.Proxy/Dockerfile
+#    healthcheck:
+#      test: ["CMD", "curl", "--head", "-fsSk", "http://localhost:8080/health/ready"]
+#      interval: 1m
+#      timeout: 5s
+#      retries: 15
+#      start_interval: 45s
+#      start_period: 5s
     labels:
       traefik.enable: true
       traefik.http.routers.gl-proxy.entrypoints: http
@@ -71,6 +78,10 @@ services:
         condition: service_healthy
       gitlab:
         condition: service_healthy
+      mm:
+        condition: service_healthy
+      red55.mattermost.openid.proxy:
+        condition: service_started
     ports:
       - 80:80
       - 8080:8080
