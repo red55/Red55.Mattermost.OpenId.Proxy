@@ -128,6 +128,21 @@ try
             o.SerializerOptions.DictionaryKeyPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
         });
 
+    _ = builder.Services
+        .AddHttpClient ("OpenIdApiChecks", c =>
+        {
+        }).ConfigurePrimaryHttpMessageHandler (() =>
+        {
+            var r = new HttpClientHandler ();
+
+            if (appConfig.OpenId.HealthChecks != OpenIdHealthChecks.Empty &&
+                appConfig.OpenId.HealthChecks.DangerousAcceptAnyServerCertificate)
+            {
+                r.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            }
+
+            return r;
+        });
     // Register the custom health check
     var checks = builder.Services
         .AddHealthChecks ();

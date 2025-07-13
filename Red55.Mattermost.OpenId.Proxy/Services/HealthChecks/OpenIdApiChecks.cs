@@ -14,7 +14,7 @@ public class OpenIdApiReadinessCheck(IOptions<AppConfig> config,
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        var http = _httpClientFactory.CreateClient("OpenIdApiReadiness");
+        var http = _httpClientFactory.CreateClient ("OpenIdApiChecks");
 
         try
         {
@@ -36,16 +36,14 @@ public class OpenIdApiReadinessCheck(IOptions<AppConfig> config,
 
 
 public class OpenIdApiLivenessCheck(IOptions<AppConfig> config,
-    ILogger<OpenIdApiLivenessCheck> log) : IHealthCheck
+    ILogger<OpenIdApiLivenessCheck> log,
+    IHttpClientFactory httpClientFactory) : IHealthCheck
 {
     protected AppConfig Config { get; } = config.Value;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        var handler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
-        };
-        HttpClient http = Config.OpenId.HealthChecks.DangerousAcceptAnyServerCertificate ? new (handler) : new ();
+        var http = _httpClientFactory.CreateClient ("OpenIdApiChecks");
         try
         {
             var r = await http.GetAsync (Config.OpenId.HealthChecks.LivenessUrl, cancellationToken);
