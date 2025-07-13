@@ -7,16 +7,14 @@ using Red55.Mattermost.OpenId.Proxy.Models;
 namespace Red55.Mattermost.OpenId.Proxy.Services.HealthChecks;
 
 public class OpenIdApiReadinessCheck(IOptions<AppConfig> config,
-    ILogger<OpenIdApiReadinessCheck> log) : IHealthCheck
+    ILogger<OpenIdApiReadinessCheck> log,
+    IHttpClientFactory httpClientFactory) : IHealthCheck
 {
     protected AppConfig Config { get; } = config.Value;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        var handler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
-        };
-        HttpClient http = Config.OpenId.HealthChecks.DangerousAcceptAnyServerCertificate ? new (handler) : new ();
+        var http = _httpClientFactory.CreateClient("OpenIdApiReadiness");
 
         try
         {
