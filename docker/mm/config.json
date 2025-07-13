@@ -190,7 +190,8 @@
         "FileMaxBackups": 0,
         "FileCompress": false,
         "FileMaxQueueSize": 1000,
-        "AdvancedLoggingJSON": {}
+        "AdvancedLoggingJSON": {},
+        "Certificate": ""
     },
     "NotificationLogSettings": {
         "EnableConsole": true,
@@ -307,6 +308,9 @@
         "AboutLink": "https://mattermost.com/pl/about-mattermost",
         "HelpLink": "https://mattermost.com/pl/help/",
         "ReportAProblemLink": "https://mattermost.com/pl/report-a-bug",
+        "ReportAProblemType": "default",
+        "ReportAProblemMail": "",
+        "AllowDownloadLogs": true,
         "ForgotPasswordLink": "",
         "SupportEmail": "",
         "CustomTermsOfServiceEnabled": false,
@@ -405,6 +409,7 @@
         "LoginIdAttribute": "",
         "PictureAttribute": "",
         "SyncIntervalMinutes": 60,
+        "ReAddRemovedMembers": false,
         "SkipCertificateVerification": false,
         "PublicCertificateFile": "",
         "PrivateKeyFile": "",
@@ -614,6 +619,9 @@
                     "services": null,
                     "transcriptBackend": ""
                 }
+            },
+            "playbooks": {
+                "BotUserID": "1ikya8z3kpfpzbd4wyd6s3i5jh"
             }
         },
         "PluginStates": {

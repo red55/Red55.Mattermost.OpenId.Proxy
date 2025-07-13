@@ -272,7 +272,7 @@ gitlab_rails['smtp_enable'] = false
 
 ### Monitoring settings
 ###! IP whitelist controlling access to monitoring endpoints
-# gitlab_rails['monitoring_whitelist'] = ['127.0.0.0/8', '::1/128']
+gitlab_rails['monitoring_whitelist'] = ['0.0.0.0/0', '::1/128']
 
 ### Shutdown settings
 ###! Defines an interval to block healthcheck,
