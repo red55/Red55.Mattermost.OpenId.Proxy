@@ -23,6 +23,8 @@ COPY ["Red55.Mattermost.OpenId.Proxy/Directory.Build.props", "Red55.Mattermost.O
 COPY ["Red55.Mattermost.OpenId.Proxy/Red55.Mattermost.OpenId.Proxy.csproj", "Red55.Mattermost.OpenId.Proxy/"]
 RUN dotnet restore "./Red55.Mattermost.OpenId.Proxy/Red55.Mattermost.OpenId.Proxy.csproj"
 COPY . .
+COPY .git/ .git/
+
 WORKDIR "/src/Red55.Mattermost.OpenId.Proxy"
 RUN dotnet build "./Red55.Mattermost.OpenId.Proxy.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
