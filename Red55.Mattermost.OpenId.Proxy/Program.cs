@@ -36,6 +36,15 @@ Log.Logger = new LoggerConfiguration ()
     .MinimumLevel.Debug ()
     .WriteTo.Console (new ExpressionTemplate ("[{@t:yyyy-MM-ddTHH:mm:ss} {Coalesce(CorrelationId, '0000000000000:00000000')} {@l:u3}] {@m}\n{@x}"))
     .CreateBootstrapLogger ();
+var version = Assembly.GetExecutingAssembly ().GetCustomAttribute<AssemblyFileVersionAttribute> ();
+if (version is not null)
+{
+    Log.Logger.Information ("Starting Red55.Mattermost.OpenId.Proxy v{Version}", version.Version);
+}
+else
+{
+    Log.Logger.Information ("Starting Red55.Mattermost.OpenId.Proxy (version unknown)");
+}
 
 try
 {

@@ -23,15 +23,14 @@ COPY ["Red55.Mattermost.OpenId.Proxy/Directory.Build.props", "Red55.Mattermost.O
 COPY ["Red55.Mattermost.OpenId.Proxy/Red55.Mattermost.OpenId.Proxy.csproj", "Red55.Mattermost.OpenId.Proxy/"]
 RUN dotnet restore "./Red55.Mattermost.OpenId.Proxy/Red55.Mattermost.OpenId.Proxy.csproj"
 COPY . .
-COPY .git/ .git/
 
 WORKDIR "/src/Red55.Mattermost.OpenId.Proxy"
-RUN dotnet build "./Red55.Mattermost.OpenId.Proxy.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN --mount=type=bind,source=./.git,target=/src/Red55.Mattermost.OpenId.Proxy/.git/ dotnet build "Red55.Mattermost.OpenId.Proxy.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Red55.Mattermost.OpenId.Proxy.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN --mount=type=bind,source=./.git,target=/src/Red55.Mattermost.OpenId.Proxy/.git/ dotnet publish "Red55.Mattermost.OpenId.Proxy.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
