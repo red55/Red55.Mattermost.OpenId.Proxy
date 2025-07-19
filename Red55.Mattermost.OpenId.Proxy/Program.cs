@@ -39,7 +39,7 @@ Log.Logger = new LoggerConfiguration ()
 var version = Assembly.GetExecutingAssembly ().GetCustomAttribute<AssemblyFileVersionAttribute> ();
 if (version is not null)
 {
-    Log.Logger.Information ("Starting Red55.Mattermost.OpenId.Proxy v{Version} ({BuildDate} UTC)", version.Version, File.GetLastWriteTime (Assembly.GetExecutingAssembly ().Location));
+    Log.Logger.Information ("Starting Red55.Mattermost.OpenId.Proxy v{Version}", version.Version);
 }
 else
 {
