@@ -31,6 +31,8 @@ namespace Red55.Mattermost.OpenId.Proxy.Services
             return Task.CompletedTask;
         }
 
+        private static readonly TimeSpan RetryDelayMilliseconds = TimeSpan.FromSeconds (10);
+
         private async Task DoWork(CancellationToken cancellationToken)
         {
             try
@@ -40,9 +42,9 @@ namespace Red55.Mattermost.OpenId.Proxy.Services
                     var apiResponse = await PatApi.GetSelfAsync (cancellationToken);
                     if (!apiResponse.IsSuccessStatusCode || apiResponse.Content is null)
                     {
-                        Log.LogWarning ("Get Self Info for PAT failed {Status}. Will try again later.",
-                            apiResponse.StatusCode);
-                        await Task.Delay (10_000, cancellationToken);
+                        Log.LogWarning ("Get Self Info for PAT failed {Status}. Will try again later after {Seconds}.",
+                            apiResponse.StatusCode, RetryDelayMilliseconds.Seconds);
+                        await Task.Delay (RetryDelayMilliseconds, cancellationToken);
                         continue;
                     }
 
