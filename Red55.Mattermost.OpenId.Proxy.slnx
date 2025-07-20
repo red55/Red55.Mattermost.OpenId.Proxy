@@ -10,7 +10,10 @@
     <File Path=".github/workflows/ci-on-tags-master.yml" />
   </Folder>
   <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
     <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
     <File Path="localhost.crt" />
     <File Path="localhost.key" />
     <File Path="README.md" />
