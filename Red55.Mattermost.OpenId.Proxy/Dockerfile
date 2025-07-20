@@ -23,7 +23,7 @@ COPY ["Red55.Mattermost.OpenId.Proxy/Directory.Packages.props", "Red55.Mattermos
 COPY ["Red55.Mattermost.OpenId.Proxy/Directory.Build.props", "Red55.Mattermost.OpenId.Proxy/"]
 COPY ["Red55.Mattermost.OpenId.Proxy/Red55.Mattermost.OpenId.Proxy.csproj", "Red55.Mattermost.OpenId.Proxy/"]
 RUN dotnet restore "./Red55.Mattermost.OpenId.Proxy/Red55.Mattermost.OpenId.Proxy.csproj"
-COPY --exclude=./git/* . .
+COPY --exclude=./.git/* . .
 
 WORKDIR "/src/Red55.Mattermost.OpenId.Proxy"
 RUN --mount=type=bind,source=./.git,target=/src/Red55.Mattermost.OpenId.Proxy/.git/ dotnet build "Red55.Mattermost.OpenId.Proxy.csproj" -c $BUILD_CONFIGURATION -o /app/build
