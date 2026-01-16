@@ -15,7 +15,7 @@ services:
       timeout: 5s
       retries: 3
     volumes:
-      - kc_data:/var/lib/postgresql/data
+      - kc_data:/var/lib/postgresql
   kc:
     image: cr.yunqi.studio/it/keycloak:latest
     container_name: kc

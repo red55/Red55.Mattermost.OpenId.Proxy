@@ -18,7 +18,7 @@ services:
     ports:
       - 5432:5432 
     volumes:
-      - mm_pg_data:/var/lib/postgresql/data
+      - mm_pg_data:/var/lib/postgresql
 
   mm:
     container_name: mm
