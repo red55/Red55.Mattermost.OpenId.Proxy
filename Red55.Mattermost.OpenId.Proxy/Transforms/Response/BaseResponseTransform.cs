@@ -81,7 +81,7 @@ namespace Red55.Mattermost.OpenId.Proxy.Transforms.Response
                 }
                 else
                 {
-                    values = ToArray (in values2);
+                    values = values2.ToArray ();
                 }
 
                 return true;
@@ -89,17 +89,7 @@ namespace Red55.Mattermost.OpenId.Proxy.Transforms.Response
 
             values = default;
             return false;
-            static StringValues ToArray(in HeaderStringValues values)
-            {
-                string[] array = new string[values.Count];
-                int num = 0;
-                foreach (string value in values)
-                {
-                    array[num++] = value;
-                }
 
-                return array;
-            }
         }
 
         public static StringValues GetHeader(ResponseTransformContext context, string headerName)
