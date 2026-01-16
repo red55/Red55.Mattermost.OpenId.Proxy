@@ -36,5 +36,20 @@ namespace Red55.Mattermost.OpenId.Proxy.Transforms
                 }
             }
         }
+        public static void DumpHeaders(IHeaderDictionary headers, ILogger log, LogLevel lvl, string msgPrefix)
+        {
+            if (!log.IsEnabled (lvl))
+            {
+                return;
+            }
+
+            foreach (var header in headers)
+            {
+                var key = header.Key;
+                var values = header.Value;
+                var s = values.Aggregate ((current, next) => current ?? string.Empty + "," + next ?? string.Empty);
+                log.Log (lvl, "{Prefix} {HeaderKey}={Values}", msgPrefix, key, s);
+            }
+        }
     }
 }

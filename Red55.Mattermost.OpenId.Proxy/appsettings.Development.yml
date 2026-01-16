@@ -25,6 +25,8 @@ ReverseProxy:
     gitlab_auth:
       Transforms:
         - RequestHeadersCopy: 'true'
+        - DumpRequestHeaders: 'Information'
+        - DumpResponseHeaders: 'Information'
         - PathSet: "/realms/master/protocol/openid-connect/auth"
         - DisableSecureCookies: 'true'
         - ReplaceInResponse:
@@ -33,6 +35,8 @@ ReverseProxy:
     gitlab_token:
       Transforms:
         - RequestHeadersCopy: 'true'
+        - DumpRequestHeaders: 'Information'
+        - DumpResponseHeaders: 'Information'
         - PathSet: "/realms/master/protocol/openid-connect/token"
         - DisableSecureCookies: 'true'
         - ReplaceInResponse:

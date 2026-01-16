@@ -81,6 +81,7 @@ try
         .AddTransformFactory<DisableSecureCookiesTransformFactory> ()
         .AddTransformFactory<ReplaceInResponseTransformFactory> ()
         .AddTransformFactory<ReplaceInRequestTransformFactory> ()
+        .AddTransformFactory<DumpHeadersTransformFactory> ()
         .LoadFromConfig (builder.Configuration.GetRequiredSection ("ReverseProxy"));
     // Set DangerousAcceptAnyServerCertificate in appsettings.yml/appsettings.Development.yml under each cluster's HttpClient section.
     var refitSettings = new RefitSettings ()
